@@ -12,6 +12,8 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TableContainer,
+  Paper,
 } from "@mui/material";
 
 import {
@@ -72,7 +74,7 @@ const colors = ["#aed581", "#81c784", "#4caf50", "#2e7d32"];
 
 export default function Dashboard() {
   return (
-    <Box>
+    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
       {/* HEADER */}
       <Box  sx={{
           p: 4,
@@ -99,7 +101,16 @@ export default function Dashboard() {
           { label: "Session Utilization", value: "82%", icon: <InsightsIcon /> },
         ].map((kpi, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
-            <Card sx={{ height: "100%" }}>
+            <Card sx={{height: "100%",
+                borderRadius: 4,
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
+                background: "rgba(255,255,255,0.9)",
+                backdropFilter: "blur(10px)",
+              }}>
               <CardContent>
                 <Stack direction="row" spacing={4} alignItems="center">
                   <Avatar sx={{ bgcolor: "#e8f5e9", color: "#2e7d32" }}>
@@ -109,7 +120,9 @@ export default function Dashboard() {
                     <Typography variant="body2" color="text.secondary">
                       {kpi.label}
                     </Typography>
-                    <Typography fontWeight="bold">
+                    <Typography variant="h6"
+                      fontWeight="bold"
+                      sx={{ color: COLORS.main }}>
                       {kpi.value}
                     </Typography>
                   </Box>
@@ -120,21 +133,23 @@ export default function Dashboard() {
         ))}
       </Grid>
       {/* TABLE SECTION */}
-      <Card sx={{ mt: 2, mb: 2 }}>
-        <CardContent>
-          <Typography fontWeight="bold" mb={1}>
+          <Typography variant="h6" fontWeight="bold" mb={2}>
             Performance Summary
           </Typography>
 
-          <Table size="medium">
-            <TableHead >
+      <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
+          <Table>
+            <TableHead sx={{ background: COLORS.main,"& .MuiTableCell-head": {
+              color: "#fff",
+              fontWeight: "bold",
+            }, }} >
               <TableRow>
-                <TableCell sx={{ fontWeight: "bold", variant: "h5" }}>Startup</TableCell>
-                <TableCell sx={{ fontWeight: "bold", variant: "h5" }}>Stage</TableCell>
-                <TableCell sx={{ fontWeight: "bold", variant: "h5" }}>Progress</TableCell>
-                <TableCell sx={{ fontWeight: "bold", variant: "h5" }}>Last Session</TableCell>
-                <TableCell sx={{ fontWeight: "bold", variant: "h5" }}>Status</TableCell>
-              </TableRow>
+                <TableCell>Startup</TableCell>
+                <TableCell>Stage</TableCell>
+                <TableCell>Progress</TableCell>
+                <TableCell>Last Session</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow> 
             </TableHead>
             <TableBody>
               {[
@@ -158,12 +173,17 @@ export default function Dashboard() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-      <Grid container spacing={2}>
+        </TableContainer>
+      <Grid container spacing={2} my={3}>
         <Grid item xs={12} md={4}>
           <Card
             sx={{
+              borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 180,
               display: "flex",
@@ -195,6 +215,12 @@ export default function Dashboard() {
         <Grid item xs={12} md={4}>
           <Card
             sx={{
+              borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 180,
               display: "flex",
@@ -224,6 +250,12 @@ export default function Dashboard() {
         <Grid item xs={12} md={4}>
           <Card
             sx={{
+              borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 180,
               display: "flex",
@@ -250,16 +282,19 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-
       </Grid>
-
 
       {/* ANALYTICS ZONE */}
       <Grid container spacing={2} my={2}>
         {/* GROWTH CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{
+            sx={{borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 400,
               display: "flex",
@@ -298,7 +333,12 @@ export default function Dashboard() {
         {/* REVENUE CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{
+            sx={{ borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 400,
               display: "flex",
@@ -315,7 +355,6 @@ export default function Dashboard() {
               <Typography fontWeight="bold" mb={1}>
                 Revenue Trend Analysis
               </Typography>
-
               <Box sx={{ height: 300 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={revenueData}>
@@ -333,7 +372,12 @@ export default function Dashboard() {
         {/* PIE CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{
+            sx={{ borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+                },
               width: 450,
               height: 400,
               display: "flex",
@@ -378,9 +422,6 @@ export default function Dashboard() {
           </Card>
         </Grid>
       </Grid>
-
-
-
     </Box>
   );
 }

@@ -31,6 +31,15 @@ const cardStyle = {
     marginBottom: "40px",
     overflow: "hidden"
 };
+const COLORS = {
+  dark: "#1B5E20",
+  main: "#2E7D32",
+  light: "#E8F5E9",
+  mint: "#66BB6A",
+  warning: "#FB8C00",
+  danger: "#E53935",
+};
+
 /*=====define data======*/
 const domainOptions = [
     "Artificial Intelligence",
@@ -681,8 +690,24 @@ export default function StartupRegistrationForm() {
     };
 
     /* ========== main =========== */
-    return (
-        <Box sx={{ p:5, bgcolor: "#E8F5E9", minHeight: "100vh" }}>
+    return (    
+        <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
+              <Box
+                    sx={{
+                      p: 4,
+                      mb: 4,
+                      borderRadius: 4,
+                      background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
+                      color: "#fff",
+                    }}
+                  >
+                    <Typography variant="h4" fontWeight="bold">
+                      Expert Profile
+                    </Typography>
+                    <Typography sx={{ opacity: 0.9 }}>
+                      Empowering founders with strategic guidance and execution-focused mentorship
+                    </Typography>
+                  </Box>
             <form onSubmit={handleSubmit}>
                 {/* ================= PERSONAL INFO ================= */}
                 <Paper sx={cardStyle}>

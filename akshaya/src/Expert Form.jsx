@@ -408,7 +408,7 @@ const initialExpertState = {
     otherUrl: "",
 };
 
-export default function StartupRegistrationForm() {
+export default function ExpertForm() {
     /* ---------- Personal & Digital ---------- */
     const [expert, setExpert] = useState(initialExpertState);
     const [profileImageError, setProfileImageError] = useState(false);
@@ -418,7 +418,7 @@ export default function StartupRegistrationForm() {
     const [cropOpen, setCropOpen] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
+    const [zoom, setZoom] = useState(1);    
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const fileInputRef = useRef(null);
     const [errors, setErrors] = useState({

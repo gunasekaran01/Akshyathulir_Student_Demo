@@ -308,7 +308,7 @@ const experts = [
 
 
 /* ================= MAIN ================= */
-export default function CropSmileExpertProfile() {
+export default function ExpertProfile() {
   const [expertise, setExpertise] = useState("");
   const [language, setLanguage] = useState("");
   const [mode, setMode] = useState("");
