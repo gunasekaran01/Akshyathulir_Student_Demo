@@ -42,7 +42,7 @@ const COLORS = {
 /* ------------------ DATA ------------------ */
 const kpis = [
   { label: "Total Startups", value: 18, icon: <BusinessIcon /> },
-  { label: "Active Mentorships", value: 16, icon: <GroupsIcon /> },
+  { label: "Total Mentorships", value: 16, icon: <GroupsIcon /> },
   { label: "Avg Growth", value: "12%", icon: <TrendingUpIcon /> },
   { label: "On Track", value: 15, icon: <CheckCircleIcon /> },
   { label: "At Risk", value: 11, icon: <WarningAmberIcon /> },

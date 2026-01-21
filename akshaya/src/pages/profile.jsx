@@ -32,12 +32,12 @@ const cardStyle = {
     overflow: "hidden"
 };
 const COLORS = {
-  dark: "#1B5E20",
-  main: "#2E7D32",
-  light: "#E8F5E9",
-  mint: "#66BB6A",
-  warning: "#FB8C00",
-  danger: "#E53935",
+    dark: "#1B5E20",
+    main: "#2E7D32",
+    light: "#E8F5E9",
+    mint: "#66BB6A",
+    warning: "#FB8C00",
+    danger: "#E53935",
 };
 
 /*=====define data======*/
@@ -415,6 +415,13 @@ const initialExpertState = {
     linkedinUrl: "",
     othersUrl: "",
     otherUrl: "",
+    bankName: "",
+    accountHolderName: "",
+    accountNumber: "",
+    ifscCode: "",
+    accountType: "",
+    upiId: "",
+
 };
 
 export default function StartupRegistrationForm() {
@@ -492,7 +499,7 @@ export default function StartupRegistrationForm() {
         reader.readAsDataURL(file);
         reader.onload = () => {
             setImageSrc(reader.result);
-            setCropOpen(true);          
+            setCropOpen(true);
         };
     };
     const handleCropSave = async () => {
@@ -674,7 +681,7 @@ export default function StartupRegistrationForm() {
             ...expert,
             certifications: certifications.map((c) => ({
                 name: c.name,
-                Proof:c.proof.name,
+                Proof: c.proof.name,
             })),
         };
         console.log("Expert Data:", expertData);
@@ -690,24 +697,24 @@ export default function StartupRegistrationForm() {
     };
 
     /* ========== main =========== */
-    return (    
-        <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
-              <Box
-                    sx={{
-                      p: 4,
-                      mb: 4,
-                      borderRadius: 4,
-                      background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
-                      color: "#fff",
-                    }}
-                  >
-                    <Typography variant="h4" fontWeight="bold">
-                      Expert Profile
-                    </Typography>
-                    <Typography sx={{ opacity: 0.9 }}>
-                      Empowering founders with strategic guidance and execution-focused mentorship
-                    </Typography>
-                  </Box>
+    return (
+        <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
+            <Box
+                sx={{
+                    p: 4,
+                    mb: 4,
+                    borderRadius: 4,
+                    background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
+                    color: "#fff",
+                }}
+            >
+                <Typography variant="h4" fontWeight="bold">
+                    Expert Profile
+                </Typography>
+                <Typography sx={{ opacity: 0.9 }}>
+                    Empowering founders with strategic guidance and execution-focused mentorship
+                </Typography>
+            </Box>
             <form onSubmit={handleSubmit}>
                 {/* ================= PERSONAL INFO ================= */}
                 <Paper sx={cardStyle}>
@@ -752,7 +759,7 @@ export default function StartupRegistrationForm() {
                 {/* ================= LOCATION ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>
-                        <Typography variant="h6">Institution Address</Typography>
+                        <Typography variant="h6">Expert Address</Typography>
                     </Box>
                     <Box sx={{ p: 4 }}>
                         <Grid container spacing={3}>
@@ -1126,6 +1133,93 @@ export default function StartupRegistrationForm() {
                         </Grid>
                     </Box>
                 </Paper>
+                {/* ================= BANK DETAILS ================= */}
+                <Paper sx={cardStyle}>
+                    <Box sx={sectionHeaderStyle}>
+                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                            Bank Details
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ p: 4 }}>
+                        <Grid container spacing={3}>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Account Holder Name"
+                                    name="accountHolderName"
+                                    value={expert.accountHolderName || ""}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Bank Name"
+                                    name="bankName"
+                                    value={expert.bankName || ""}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    type="text"
+                                    label="Account Number"
+                                    name="accountNumber"
+                                    value={expert.accountNumber || ""}
+                                    onChange={handleChange}
+                                    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="IFSC Code"
+                                    name="ifscCode"
+                                    value={expert.ifscCode || ""}
+                                    onChange={handleChange}
+                                    placeholder="SBIN0000123"
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    required
+                                    label="Account Type"
+                                    name="accountType"
+                                    value={expert.accountType || ""}
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="">Select Account Type</MenuItem>
+                                    <MenuItem value="Savings">Savings</MenuItem>
+                                    <MenuItem value="Current">Current</MenuItem>
+                                </TextField>
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="UPI ID (Optional)"
+                                    name="upiId"
+                                    value={expert.upiId || ""}
+                                    onChange={handleChange}
+                                    placeholder="name@bank"
+                                />
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </Paper>
+
                 {/* ================= DIGITAL ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>

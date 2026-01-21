@@ -406,6 +406,13 @@ const initialExpertState = {
     linkedinUrl: "",
     othersUrl: "",
     otherUrl: "",
+    bankName: "",
+    accountHolderName: "",
+    accountNumber: "",
+    ifscCode: "",
+    accountType: "",
+    upiId: "",
+
 };
 
 export default function ExpertForm() {
@@ -418,7 +425,7 @@ export default function ExpertForm() {
     const [cropOpen, setCropOpen] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);    
+    const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const fileInputRef = useRef(null);
     const [errors, setErrors] = useState({
@@ -483,7 +490,7 @@ export default function ExpertForm() {
         reader.readAsDataURL(file);
         reader.onload = () => {
             setImageSrc(reader.result);
-            setCropOpen(true);          
+            setCropOpen(true);
         };
     };
     const handleCropSave = async () => {
@@ -665,7 +672,7 @@ export default function ExpertForm() {
             ...expert,
             certifications: certifications.map((c) => ({
                 name: c.name,
-                Proof:c.proof.name,
+                Proof: c.proof.name,
             })),
         };
         console.log("Expert Data:", expertData);
@@ -682,7 +689,7 @@ export default function ExpertForm() {
 
     /* ========== main =========== */
     return (
-        <Box sx={{ p:5, bgcolor: "#f4f6f4", minHeight: "100vh" }}>
+        <Box sx={{ p: 5, bgcolor: "#f4f6f4", minHeight: "100vh" }}>
             <Typography
                 variant="h5"
                 align="center"
@@ -736,7 +743,7 @@ export default function ExpertForm() {
                 {/* ================= LOCATION ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>
-                        <Typography variant="h6">Institution Address</Typography>
+                        <Typography variant="h6">Expert Address</Typography>
                     </Box>
                     <Box sx={{ p: 4 }}>
                         <Grid container spacing={3}>
@@ -1110,6 +1117,93 @@ export default function ExpertForm() {
                         </Grid>
                     </Box>
                 </Paper>
+                {/* ================= BANK DETAILS ================= */}
+                <Paper sx={cardStyle}>
+                    <Box sx={sectionHeaderStyle}>
+                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                            Bank Details
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ p: 4 }}>
+                        <Grid container spacing={3}>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Account Holder Name"
+                                    name="accountHolderName"
+                                    value={expert.accountHolderName || ""}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Bank Name"
+                                    name="bankName"
+                                    value={expert.bankName || ""}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    type="text"
+                                    label="Account Number"
+                                    name="accountNumber"
+                                    value={expert.accountNumber || ""}
+                                    onChange={handleChange}
+                                    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="IFSC Code"
+                                    name="ifscCode"
+                                    value={expert.ifscCode || ""}
+                                    onChange={handleChange}
+                                    placeholder="SBIN0000123"
+                                />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    required
+                                    label="Account Type"
+                                    name="accountType"
+                                    value={expert.accountType || ""}
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="">Select Account Type</MenuItem>
+                                    <MenuItem value="Savings">Savings</MenuItem>
+                                    <MenuItem value="Current">Current</MenuItem>
+                                </TextField>
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="UPI ID (Optional)"
+                                    name="upiId"
+                                    value={expert.upiId || ""}
+                                    onChange={handleChange}
+                                    placeholder="name@bank"
+                                />
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </Paper>
+
                 {/* ================= DIGITAL ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>

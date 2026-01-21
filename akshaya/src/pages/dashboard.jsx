@@ -93,7 +93,7 @@ export default function Dashboard() {
       {/* KPI BAND */}
       <Grid container spacing={3} mb={2}>
         {[
-          { label: "Active Mentees", value: "12", icon: <GroupsIcon /> },
+          { label: "Total Mentees", value: "12", icon: <GroupsIcon /> },
           { label: "Sessions Conducted", value: "28", icon: <EventIcon /> },
           { label: "Avg. Rating", value: "4.8 / 5", icon: <StarIcon /> },
           { label: "Monthly Revenue", value: "₹18,000", icon: <CurrencyRupeeIcon /> },

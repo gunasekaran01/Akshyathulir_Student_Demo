@@ -45,7 +45,7 @@ const revenueKpis = [
   { label: "Avg / Session", value: "₹3,000", icon: <EventIcon /> },
   { label: "Revenue Growth", value: "+18%", icon: <TrendingUpIcon /> },
   { label: "Total Sessions", value: "160", icon: <GroupsIcon /> },
-   { label: "Pending Payout", value: "₹24,000", icon: <AccountBalanceIcon /> },
+   { label: "Pending Payout", value: "₹38,000", icon: <AccountBalanceIcon /> },
 ];
 
 /* ------------------ CHART DATA ------------------ */
