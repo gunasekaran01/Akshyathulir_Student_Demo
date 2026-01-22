@@ -20,8 +20,8 @@ import TuneIcon from "@mui/icons-material/Tune";
 
 /* ================= STAT CARD ================= */
 const StatCard = ({ title, value }) => (
-    <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-        <Typography variant="h6">{value}</Typography>
+    <Paper sx={{ p:2 ,px:8, textAlign: "center", borderRadius: 2 ,background: "#eeeeee78"}}>
+        <Typography variant="h6 ">{value}</Typography>
         <Typography color="text.secondary">{title}</Typography>
     </Paper>
 );
@@ -270,7 +270,7 @@ function Test() {
 
                             <Divider sx={{ my: 2 }} />
 
-                            <Grid container spacing={3}>
+                            <Grid container spacing={4}>
                                 <Grid item xs={12} md={4}>
                                     <StatCard title="Experience" value="5+ Years" />
                                 </Grid>
@@ -297,10 +297,10 @@ function Test() {
                             <Typography variant="h6" fontWeight="bold">
                                 What You Get
                             </Typography>
-                            <Typography>- Personalized learning plan</Typography>
-                            <Typography>- Practical project-based training</Typography>
-                            <Typography>- Doubt clearing sessions</Typography>
-                            <Typography>- Resume & Interview guidance</Typography>
+                            <Typography>✅Personalized learning plan</Typography>
+                            <Typography>✅Practical project-based training</Typography>
+                            <Typography>✅Doubt clearing sessions</Typography>
+                            <Typography>✅Resume & Interview guidance</Typography>
 
                             <Divider sx={{ my: 2 }} />
 
@@ -432,7 +432,7 @@ function Test() {
                                 {/* ===== VERTICAL CAROUSEL WRAPPER ===== */}
                                 <Box
                                     sx={{
-                                        height: 400,                 // visible area
+                                        height: 380,                 // visible area
                                         overflow: "hidden",
                                         position: "relative",
 

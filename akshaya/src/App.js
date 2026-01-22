@@ -19,7 +19,7 @@ function App() {
     <Routes>
     <Route path="expertform" element={<ExpertForm />} />
     <Route path="expertprofile" element={<Expertprofile />} />
-    <Route path="dash" element={ <Test/>}/>
+    <Route path="dashboard" element={ <Test/>}/>
     
       <Route path="/" element={<Drawx />}>
         <Route index element={<Dashboard />} />
