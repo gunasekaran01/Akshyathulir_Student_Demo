@@ -20,7 +20,7 @@ import TuneIcon from "@mui/icons-material/Tune";
 
 /* ================= STAT CARD ================= */
 const StatCard = ({ title, value }) => (
-    <Paper sx={{ p:2 ,px:8, textAlign: "center", borderRadius: 2 ,background: "#eeeeee78"}}>
+    <Paper sx={{ p: 2, px: 8, textAlign: "center", borderRadius: 2, background: "#eeeeee78" }}>
         <Typography variant="h6 ">{value}</Typography>
         <Typography color="text.secondary">{title}</Typography>
     </Paper>
@@ -344,7 +344,7 @@ function Test() {
                                         overflow: "hidden",
                                         position: "relative",
                                         mx: "auto",
-                                        borderRadius:4,
+                                        borderRadius: 4,
                                     }}
                                 >
                                     <Box
@@ -371,7 +371,7 @@ function Test() {
                                                         width: "100%",
                                                         height: 160,
                                                         objectFit: "cover",
-                                                       
+
                                                     }}
                                                 />
 
@@ -602,143 +602,144 @@ function Test() {
                 {/* ===== LEFT : FILTERS ===== */}
                 <Grid item xs={12} md={4}>
 
-                <Paper
-                    sx={{
-                        gridColumn: "1 / 2",
-                        p: 2,
-                        borderRadius: "16px",
-                        height: "fit-content",
-                    }}
-                >
-                    <Typography
-                        fontSize={18}
-                        fontWeight={600}
-                        color="#2e7d32"
-                        mb={2}
+                    <Paper
+                        sx={{
+                            gridColumn: "1 / 2",
+                            p: 2,
+                            borderRadius: "16px",
+                            height: "fit-content",
+                        }}
                     >
-                        <TuneIcon sx={{ mr: 1 }} />
-                        Filters
-                    </Typography>
+                        <Typography
+                            fontSize={18}
+                            fontWeight={600}
+                            color="#2e7d32"
+                            mb={2}
+                        >
+                            <TuneIcon sx={{ mr: 1 }} />
+                            Filters
+                        </Typography>
 
-                    {[
-                        { label: "Domain", options: domains, key: "domain" },
-                        { label: "Subdomain", options: subdomains, key: "subdomain" },
-                        { label: "Mode", options: modes, key: "mode" },
-                        { label: "Language", options: languages, key: "language" },
-                    ].map(({ label, options, key }) => (
-                        <Autocomplete
-                            key={key}
-                            multiple
-                            options={options}
-                            getOptionLabel={(o) => o.label}
-                            onChange={(e, v) =>
-                                setFilters((p) => ({
-                                    ...p,
-                                    [key]: v.map((i) => i.value),
-                                }))
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} label={label} sx={{ mb: "14px" }} />
-                            )}
-                        />
-                    ))}
-                </Paper>
-                <Paper
-                                sx={{mt:5,
-                                    p: 1.5,
-                                    borderRadius: 3,
-                                    bgcolor: "#ffffff",
-                                    borderLeft: "4px solid #2e7d32",
-                                    overflow: "hidden",
+                        {[
+                            { label: "Domain", options: domains, key: "domain" },
+                            { label: "Subdomain", options: subdomains, key: "subdomain" },
+                            { label: "Mode", options: modes, key: "mode" },
+                            { label: "Language", options: languages, key: "language" },
+                        ].map(({ label, options, key }) => (
+                            <Autocomplete
+                                key={key}
+                                multiple
+                                options={options}
+                                getOptionLabel={(o) => o.label}
+                                onChange={(e, v) =>
+                                    setFilters((p) => ({
+                                        ...p,
+                                        [key]: v.map((i) => i.value),
+                                    }))
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} label={label} sx={{ mb: "14px" }} />
+                                )}
+                            />
+                        ))}
+                    </Paper>
+                    <Paper
+                        sx={{
+                            mt: 5,
+                            p: 1.5,
+                            borderRadius: 3,
+                            bgcolor: "#ffffff",
+                            borderLeft: "4px solid #2e7d32",
+                            overflow: "hidden",
+                        }}
+                    >
+                        <Typography fontWeight="bold" mb={1} fontSize={14}>
+                            Sponsored
+                        </Typography>
+
+                        {/* ===== SLIDESHOW CONTAINER ===== */}
+                        <Box
+                            sx={{
+                                width: 260,
+                                maxWidth: "100%",
+                                height: 140,
+                                overflow: "hidden",
+                                position: "relative",
+                                mx: "auto",
+                                borderRadius: 4,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    transform: `translateX(-${adIndex * 100}%)`,
+                                    transition: "transform 0.6s ease-in-out",
                                 }}
                             >
-                                <Typography fontWeight="bold" mb={1} fontSize={14}>
-                                    Sponsored
-                                </Typography>
-
-                                {/* ===== SLIDESHOW CONTAINER ===== */}
-                                <Box
-                                    sx={{
-                                        width: 260,
-                                        maxWidth: "100%",
-                                        height: 140,
-                                        overflow: "hidden",
-                                        position: "relative",
-                                        mx: "auto",
-                                        borderRadius:4,
-                                    }}
-                                >
+                                {sponsoredAds.map((ad, i) => (
                                     <Box
+                                        key={i}
                                         sx={{
-                                            display: "flex",
-                                            transform: `translateX(-${adIndex * 100}%)`,
-                                            transition: "transform 0.6s ease-in-out",
+                                            minWidth: "100%",
+                                            position: "relative",
+                                            flexShrink: 0,
                                         }}
                                     >
-                                        {sponsoredAds.map((ad, i) => (
-                                            <Box
-                                                key={i}
+                                        <Box
+                                            component="img"
+                                            src={ad.img}
+                                            alt={ad.title}
+                                            sx={{
+                                                width: "100%",
+                                                height: 140,
+                                                objectFit: "cover",
+
+                                            }}
+                                        />
+
+                                        <Box
+                                            sx={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                p: 1,
+                                                bgcolor: "rgba(0,0,0,0.55)",
+                                                color: "#fff",
+                                            }}
+                                        >
+                                            <Typography fontSize={13} fontWeight={600} noWrap>
+                                                {ad.title}
+                                            </Typography>
+                                            <Typography fontSize={11} sx={{ opacity: 0.9 }}>
+                                                {ad.desc}
+                                            </Typography>
+                                            <Button
+                                                size="small"
                                                 sx={{
-                                                    minWidth: "100%",
-                                                    position: "relative",
-                                                    flexShrink: 0,
+                                                    mt: 0.4,
+                                                    bgcolor: "#2e7d32",
+                                                    color: "#fff",
+                                                    fontSize: "11px",
+                                                    px: 1,
+                                                    py: 0.2,
+                                                    textTransform: "none",
                                                 }}
                                             >
-                                                <Box
-                                                    component="img"
-                                                    src={ad.img}
-                                                    alt={ad.title}
-                                                    sx={{
-                                                        width: "100%",
-                                                        height: 140,
-                                                        objectFit: "cover",
-                                                       
-                                                    }}
-                                                />
-
-                                                <Box
-                                                    sx={{
-                                                        position: "absolute",
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        p: 1,
-                                                        bgcolor: "rgba(0,0,0,0.55)",
-                                                        color: "#fff",
-                                                    }}
-                                                >
-                                                    <Typography fontSize={13} fontWeight={600} noWrap>
-                                                        {ad.title}
-                                                    </Typography>
-                                                    <Typography fontSize={11} sx={{ opacity: 0.9 }}>
-                                                        {ad.desc}
-                                                    </Typography>
-                                                    <Button
-                                                        size="small"
-                                                        sx={{
-                                                            mt: 0.4,
-                                                            bgcolor: "#2e7d32",
-                                                            color: "#fff",
-                                                            fontSize: "11px",
-                                                            px: 1,
-                                                            py: 0.2,
-                                                            textTransform: "none",
-                                                        }}
-                                                    >
-                                                        {ad.cta}
-                                                    </Button>
-                                                </Box>
-                                            </Box>
-                                        ))}
+                                                {ad.cta}
+                                            </Button>
+                                        </Box>
                                     </Box>
-                                </Box>
+                                ))}
+                            </Box>
+                        </Box>
 
 
-                                <Typography fontSize={9} color="text.disabled" mt={0.5}>
-                                    Ads by partner platforms
-                                </Typography>
-                            </Paper>
-                            </Grid>
+                        <Typography fontSize={9} color="text.disabled" mt={0.5}>
+                            Ads by partner platforms
+                        </Typography>
+                    </Paper>
+                </Grid>
                 {/* ===== RIGHT : BACK BUTTON + PROFILES ===== */}
                 <Box
                     sx={{
