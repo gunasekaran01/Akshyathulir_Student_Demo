@@ -232,9 +232,10 @@ function Test() {
         return (
             <Box sx={{ p: 4, bgcolor: "#f4fbf3", minHeight: "100vh" }}>
                 <Grid container spacing={3}>
+
                     {/* ================= LEFT : EXPERT DETAILS ================= */}
-                    <Grid item xs={12} md={8}>
-                        <Paper sx={{ p: 4 }}>
+                    <Grid item xs={12} md={6}>
+                        <Paper sx={{ p: 4, height: "100%" }}>
                             <Button
                                 variant="contained"
                                 sx={{ mb: 2, bgcolor: "#2e7d32" }}
@@ -246,7 +247,11 @@ function Test() {
                                 ← Back to All Experts
                             </Button>
 
-                            <Stack direction="row" spacing={4} alignItems="center">
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={4}
+                                alignItems="center"
+                            >
                                 <Avatar
                                     src={selectedExpert.image}
                                     sx={{
@@ -271,13 +276,13 @@ function Test() {
                             <Divider sx={{ my: 2 }} />
 
                             <Grid container spacing={4}>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} sm={4}>
                                     <StatCard title="Experience" value="5+ Years" />
                                 </Grid>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} sm={4}>
                                     <StatCard title="Sessions" value="300+" />
                                 </Grid>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} sm={4}>
                                     <StatCard title="Rate" value="₹1500/hr" />
                                 </Grid>
                             </Grid>
@@ -288,8 +293,9 @@ function Test() {
                                 About Expert
                             </Typography>
                             <Typography color="text.secondary" mt={1}>
-                                This expert has strong domain knowledge with practical,
-                                project-based mentoring suitable for beginners and advanced learners.
+                                This expert brings extensive hands-on experience and delivers
+                                practical, real-world mentoring tailored for both beginners and
+                                advanced learners.
                             </Typography>
 
                             <Divider sx={{ my: 2 }} />
@@ -297,10 +303,10 @@ function Test() {
                             <Typography variant="h6" fontWeight="bold">
                                 What You Get
                             </Typography>
-                            <Typography>✅Personalized learning plan</Typography>
-                            <Typography>✅Practical project-based training</Typography>
-                            <Typography>✅Doubt clearing sessions</Typography>
-                            <Typography>✅Resume & Interview guidance</Typography>
+                            <Typography>✅ Personalized learning plan</Typography>
+                            <Typography>✅ Practical project-based training</Typography>
+                            <Typography>✅ Doubt clearing sessions</Typography>
+                            <Typography>✅ Resume & Interview guidance</Typography>
 
                             <Divider sx={{ my: 2 }} />
 
@@ -319,9 +325,10 @@ function Test() {
                     </Grid>
 
                     {/* ================= RIGHT : ADS / TOP EXPERTS ================= */}
-                    <Grid item xs={12} md={4}>
-                        <Stack spacing={3}>
-                            {/* ---- Ad Section ---- */}
+                    <Grid item xs={12} md={6}>
+                        <Stack spacing={3} sx={{ height: "100%" }}>
+
+                            {/* Sponsored Ads */}
                             <Paper
                                 sx={{
                                     p: 1.5,
@@ -417,7 +424,7 @@ function Test() {
                                     Ads by partner platforms
                                 </Typography>
                             </Paper>
-                            {/* ---- Top Rated Experts ---- */}
+                            {/* Top Rated Experts */}
                             <Paper
                                 sx={{
                                     p: 2,
@@ -492,13 +499,13 @@ function Test() {
                                     </Box>
                                 </Box>
                             </Paper>
-
                         </Stack>
                     </Grid>
                 </Grid>
             </Box>
         );
     }
+
     /* ================= MAIN LIST UI ================= */
     return (
         <Box

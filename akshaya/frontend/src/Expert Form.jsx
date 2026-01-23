@@ -642,7 +642,7 @@ export default function ExpertForm() {
     };
 
     /* ---------- Submit ---------- */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         let hasError = false;
@@ -675,14 +675,28 @@ export default function ExpertForm() {
                 Proof: c.proof.name,
             })),
         };
-        console.log("Expert Data:", expertData);
-        console.log("Profile Image:", profileImage);
+
         const formData = new FormData();
         certifications.forEach((cert, index) => {
             formData.append(`certProofs`, cert.proof);
         });
         formData.append("image", profileImage);
         formData.append("expertData", JSON.stringify(expertData));
+        try {
+            const response = await fetch("http://localhost:5000/api/experts", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            console.log("Server Response:", result);
+
+            alert("Expert registered successfully ✅");
+            handleReset();
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Something went wrong ❌");
+        }
 
         handleReset();
     };
