@@ -600,6 +600,8 @@ function Test() {
                 }}
             >
                 {/* ===== LEFT : FILTERS ===== */}
+                <Grid item xs={12} md={4}>
+
                 <Paper
                     sx={{
                         gridColumn: "1 / 2",
@@ -641,6 +643,102 @@ function Test() {
                         />
                     ))}
                 </Paper>
+                <Paper
+                                sx={{mt:5,
+                                    p: 1.5,
+                                    borderRadius: 3,
+                                    bgcolor: "#ffffff",
+                                    borderLeft: "4px solid #2e7d32",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <Typography fontWeight="bold" mb={1} fontSize={14}>
+                                    Sponsored
+                                </Typography>
+
+                                {/* ===== SLIDESHOW CONTAINER ===== */}
+                                <Box
+                                    sx={{
+                                        width: 260,
+                                        maxWidth: "100%",
+                                        height: 140,
+                                        overflow: "hidden",
+                                        position: "relative",
+                                        mx: "auto",
+                                        borderRadius:4,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            transform: `translateX(-${adIndex * 100}%)`,
+                                            transition: "transform 0.6s ease-in-out",
+                                        }}
+                                    >
+                                        {sponsoredAds.map((ad, i) => (
+                                            <Box
+                                                key={i}
+                                                sx={{
+                                                    minWidth: "100%",
+                                                    position: "relative",
+                                                    flexShrink: 0,
+                                                }}
+                                            >
+                                                <Box
+                                                    component="img"
+                                                    src={ad.img}
+                                                    alt={ad.title}
+                                                    sx={{
+                                                        width: "100%",
+                                                        height: 140,
+                                                        objectFit: "cover",
+                                                       
+                                                    }}
+                                                />
+
+                                                <Box
+                                                    sx={{
+                                                        position: "absolute",
+                                                        bottom: 0,
+                                                        left: 0,
+                                                        right: 0,
+                                                        p: 1,
+                                                        bgcolor: "rgba(0,0,0,0.55)",
+                                                        color: "#fff",
+                                                    }}
+                                                >
+                                                    <Typography fontSize={13} fontWeight={600} noWrap>
+                                                        {ad.title}
+                                                    </Typography>
+                                                    <Typography fontSize={11} sx={{ opacity: 0.9 }}>
+                                                        {ad.desc}
+                                                    </Typography>
+                                                    <Button
+                                                        size="small"
+                                                        sx={{
+                                                            mt: 0.4,
+                                                            bgcolor: "#2e7d32",
+                                                            color: "#fff",
+                                                            fontSize: "11px",
+                                                            px: 1,
+                                                            py: 0.2,
+                                                            textTransform: "none",
+                                                        }}
+                                                    >
+                                                        {ad.cta}
+                                                    </Button>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+
+
+                                <Typography fontSize={9} color="text.disabled" mt={0.5}>
+                                    Ads by partner platforms
+                                </Typography>
+                            </Paper>
+                            </Grid>
                 {/* ===== RIGHT : BACK BUTTON + PROFILES ===== */}
                 <Box
                     sx={{
