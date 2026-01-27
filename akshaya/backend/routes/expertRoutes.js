@@ -72,12 +72,12 @@ const expert = new Expert({
       await expert.save();
 
       res.status(201).json({
-        message: "✅ Expert registered successfully",
+        message: "Expert registered successfully.",
         expert
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "❌ Server error" });
+      res.status(500).json({ message: "Server error" });
     }
   }
 );

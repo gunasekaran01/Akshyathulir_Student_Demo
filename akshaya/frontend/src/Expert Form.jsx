@@ -346,6 +346,7 @@ const subDomainOptions = {
 
 const languageOptions = [
     // 🌍 Global & Most Spoken
+    "Tamil",
     "English",
     "Mandarin Chinese",
     "Hindi",
@@ -363,7 +364,6 @@ const languageOptions = [
     "Marathi",
     "Telugu",
     "Turkish",
-    "Tamil",
     "Vietnamese",
     "Korean",
     "Italian",
@@ -690,12 +690,11 @@ export default function ExpertForm() {
 
             const result = await response.json();
             console.log("Server Response:", result);
-
-            alert("Expert registered successfully ✅");
+            alert("Expert registered successfully.");
             handleReset();
         } catch (error) {
             console.error("Submission error:", error);
-            alert("Something went wrong ❌");
+            alert("Something went wrong while submitting the form. Please try again.");
         }
 
         handleReset();
