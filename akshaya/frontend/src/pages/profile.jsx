@@ -355,6 +355,7 @@ const subDomainOptions = {
 
 const languageOptions = [
     // 🌍 Global & Most Spoken
+    "Tamil",
     "English",
     "Mandarin Chinese",
     "Hindi",
@@ -372,7 +373,6 @@ const languageOptions = [
     "Marathi",
     "Telugu",
     "Turkish",
-    "Tamil",
     "Vietnamese",
     "Korean",
     "Italian",
@@ -651,7 +651,7 @@ export default function StartupRegistrationForm() {
     };
 
     /* ---------- Submit ---------- */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         let hasError = false;
@@ -684,14 +684,34 @@ export default function StartupRegistrationForm() {
                 Proof: c.proof.name,
             })),
         };
-        console.log("Expert Data:", expertData);
-        console.log("Profile Image:", profileImage);
         const formData = new FormData();
-        certifications.forEach((cert, index) => {
-            formData.append(`certProofs`, cert.proof);
-        });
-        formData.append("image", profileImage);
         formData.append("expertData", JSON.stringify(expertData));
+        formData.append("image", profileImage);
+
+        certifications.forEach((cert) => {
+            formData.append("certProofs", cert.proof);
+        });
+
+        try {
+            const res = await fetch("http://localhost:8000/expert", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert("Registration failed");
+                return;
+            }
+
+            alert("Expert registered successfully");
+            handleReset();
+
+        } catch (error) {
+            console.error("API Error:", error);
+            alert("Server error");
+        }
 
         handleReset();
     };

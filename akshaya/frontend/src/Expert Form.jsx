@@ -682,19 +682,25 @@ export default function ExpertForm() {
         });
         formData.append("image", profileImage);
         formData.append("expertData", JSON.stringify(expertData));
-        try {
-            const response = await fetch("http://localhost:5000/api/experts", {
+          try {
+            const res = await fetch("http://localhost:8000/expert", {
                 method: "POST",
                 body: formData,
             });
 
-            const result = await response.json();
-            console.log("Server Response:", result);
-            alert("Expert registered successfully.");
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert("Registration failed");
+                return;
+            }
+
+            alert("Expert registered successfully 🎉");
             handleReset();
+
         } catch (error) {
-            console.error("Submission error:", error);
-            alert("Something went wrong while submitting the form. Please try again.");
+            console.error("API Error:", error);
+            alert("Server error");
         }
 
         handleReset();
