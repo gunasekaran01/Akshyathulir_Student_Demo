@@ -889,7 +889,7 @@ export default function StartupRegistrationForm() {
                 {/* ================= EXPERT DETAILS ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>
-                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                        <Typography variant="h6">
                             Expert Details
                         </Typography>
                     </Box>
@@ -1156,7 +1156,7 @@ export default function StartupRegistrationForm() {
                 {/* ================= BANK DETAILS ================= */}
                 <Paper sx={cardStyle}>
                     <Box sx={sectionHeaderStyle}>
-                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                        <Typography variant="h6">
                             Bank Details
                         </Typography>
                     </Box>

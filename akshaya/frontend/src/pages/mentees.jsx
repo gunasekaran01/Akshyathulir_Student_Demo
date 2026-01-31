@@ -151,7 +151,7 @@ const actions = [
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertDashboard() {
   return (
-    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
+    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
       {/* 🌱 HEADER */}
       <Box
         sx={{
@@ -221,10 +221,10 @@ export default function ExpertDashboard() {
             <Card sx={{
               borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 250,
               height: 200,
               display: "flex",
@@ -272,10 +272,10 @@ export default function ExpertDashboard() {
           <Card sx={{
             borderRadius: 4,
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 450,
             height: 400,
             display: "flex",
@@ -306,10 +306,10 @@ export default function ExpertDashboard() {
           <Card sx={{
             borderRadius: 4,
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 420,
             height: 400,
             display: "flex",
@@ -331,7 +331,7 @@ export default function ExpertDashboard() {
                     <Cell fill={COLORS.warning} />
                     <Cell fill={COLORS.danger} />
                   </Pie>
-                  <Tooltip/>
+                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -342,10 +342,10 @@ export default function ExpertDashboard() {
           <Card sx={{
             borderRadius: 4,
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 450,
             height: 400,
             display: "flex",
