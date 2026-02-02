@@ -423,12 +423,49 @@ const initialExpertState = {
     upiId: "",
 
 };
+const validators = {
+    firstName: (v) => /^[A-Za-z ]+$/.test(v.trim()) && v.trim().length >= 2 ? "" : "First name must be at least 2 characters",
+    lastName: (v) => /^[A-Za-z ]+$/.test(v.trim()) && v.trim().length >= 1 ? "" : "Last name must be at least 1 characters",
+    email: (v) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Invalid email address",
+    phone: (v) =>
+        /^[6-9]\d{9}$/.test(v) ? "" : "Enter valid 10-digit Indian mobile number",
+    dob: (v) =>
+        new Date(v) < new Date() ? "" : "Date of birth must be in the past",
+    gender: (v) => !!v ? "" : "Gender is required",
+    experience: (v) =>
+        /^\d+$/.test(v) && Number(v) >= 0 && Number(v) <= 50
+            ? "" : "Experience must be a number between 0–50 years",
+    session: (v) =>
+        /^\d+$/.test(v) && Number(v) >= 0 ? "" : "Sessions must be a positive number",
+    rate: (v) =>
+        /^\d+$/.test(v) && Number(v) > 0 ? "" : "Rate must be a positive number",
+    pinCode: (v) =>
+        /^[1-9][0-9]{5}$/.test(v) ? "" : "Pincode must be 6 digits",
+    accountHolderName: (v) =>
+        /^[A-Za-z ]+$/.test(v.trim()) && v.trim().length >= 2 ? "" : "Account holder name must be at least 2 characters",
+    bankName: (v) =>
+        /^[A-Za-z ]+$/.test(v.trim()) && v.trim().length >= 2 ? "" : "Bank name must be at least 2 characters",
+    accountNumber: (v) =>
+        /^\d{9,18}$/.test(v) ? "" : "Account number must be 9–18 digits",
+    ifscCode: (v) =>
+        /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v) ? "" : "Invalid IFSC code",
+    websiteUrl: (v) =>
+        /^https?:\/\/.+/.test(v) ? "" : "Invalid website URL",
+    linkedinUrl: (v) =>
+        /^https?:\/\/(www\.)?linkedin\.com\/.+/.test(v) ? "" : "Invalid LinkedIn URL",
+    otherUrl: (v) =>
+        !v || /^https?:\/\/.+/.test(v) ? "" : "Invalid other URL",
+    othersUrl: (v) =>
+        !v || /^https?:\/\/.+/.test(v) ? "" : "Invalid others URL",
+    upiId: (v) =>
+        !v || /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(v) ? "" : "Invalid UPI ID (e.g. name@bank)",
+};
 
 export default function StartupRegistrationForm() {
     /* ---------- Personal & Digital ---------- */
     const [expert, setExpert] = useState(initialExpertState);
     const [profileImageError, setProfileImageError] = useState(false);
-
     const [profileImage, setProfileImage] = useState(null);
     const [preview, setPreview] = useState("");
     const [cropOpen, setCropOpen] = useState(false);
@@ -440,7 +477,30 @@ export default function StartupRegistrationForm() {
     const [errors, setErrors] = useState({
         subDomain: false,
         languages: false,
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        dob: "",
+        gender: "",
+        experience: "",
+        session: "",
+        rate: "",
+        pinCode: "",
+        accountNumber: "",
+        ifscCode: "",
+        websiteUrl: "",
+        linkedinUrl: "",
+        profileImage: "",
+        certifications: "",
+        accountHolderName: "",
+        bankName: "",
+        otherUrl: "",
+        othersUrl: "",
+        upiId: "",
     });
+
+    /* ---------- Certification ---------- */
     const [certificationInput, setCertificationInput] = useState("");
     const [certificationProof, setCertificationProof] = useState(null);
     const [certifications, setCertifications] = useState([]);
@@ -482,7 +542,58 @@ export default function StartupRegistrationForm() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setExpert((prev) => ({ ...prev, [name]: value }));
+        if (validators[name]) {
+            const result = validators[name](value);
+            setErrors((prev) => ({
+                ...prev,
+                [name]: result === true ? "" : result,
+            }));
+        }
     };
+    /*---------string validators-----------*/
+    const handleNameInput = (e) => {
+        const { name, value } = e.target;
+
+        if (!/^[A-Za-z ]*$/.test(value)) return;
+
+        setExpert((prev) => ({ ...prev, [name]: value }));
+
+        if (validators[name]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: validators[name](value),
+            }));
+        }
+    };
+    /*---------upi validators-----------*/
+    const handleUpiInput = (e) => {
+        const { value } = e.target;
+        const lower = value.toLowerCase();
+
+        setExpert((prev) => ({ ...prev, upiId: lower }));
+
+        if (validators.upiId) {
+            setErrors((prev) => ({
+                ...prev,
+                upiId: validators.upiId(lower),
+            }));
+        }
+    };
+    /*---------integer validators-----------*/
+    const handleNumericInput = (e) => {
+        const { name, value } = e.target;
+
+        // 🔒 block strings immediately
+        if (!/^\d*$/.test(value)) return;
+
+        setExpert((prev) => ({ ...prev, [name]: value }));
+
+        if (validators[name]) {
+            const errorMsg = validators[name](value);
+            setErrors((prev) => ({ ...prev, [name]: errorMsg }));
+        }
+    };
+
     const handleChange = (e) => {
         setExpert({ ...expert, [e.target.name]: e.target.value });
     };
@@ -530,6 +641,7 @@ export default function StartupRegistrationForm() {
         canvas.toBlob((blob) => {
             const file = new File([blob], "profile.jpg", { type: "image/jpeg" });
             setProfileImage(file);
+            setErrors((prev) => ({ ...prev, profileImage: "" }));
             setPreview(URL.createObjectURL(blob));
             setCropOpen(false);
         }, "image/jpeg");
@@ -642,12 +754,51 @@ export default function StartupRegistrationForm() {
         if (field === "district") {
             updated = { ...updated, district: value, city: "", area: "", pinCode: "" };
         }
-
-        if (["city", "area", "pinCode"].includes(field)) {
+        if (["city", "area"].includes(field)) {
             updated = { ...updated, [field]: value };
         }
+        if (field === "pinCode") {
+            if (!/^\d*$/.test(value)) return; // block letters
+
+            updated.pinCode = value;
+
+            // ✅ validate pincode
+            const errorMsg =
+                /^[1-9][0-9]{5}$/.test(value)
+                    ? ""
+                    : "Pincode must be 6 digits";
+
+            setErrors((prev) => ({
+                ...prev,
+                pinCode: errorMsg,
+            }));
+        }
+
 
         setExpert(updated);
+    };
+
+    /*---------- Form Validation ---------- */
+    const validateForm = () => {
+        let newErrors = {};
+
+        Object.keys(validators).forEach((field) => {
+            const value = expert[field];
+            const errorMsg = validators[field](value);
+
+            if (errorMsg) {
+                newErrors[field] = errorMsg;
+            }
+        });
+
+        if (!expert.domain) newErrors.domain = "Domain is required";
+        if (expert.subDomain.length === 0) newErrors.subDomain = "Select at least one sub-domain";
+        if (expert.languages.length === 0) newErrors.languages = "Select at least one language";
+        if (!profileImage && !preview) newErrors.profileImage = "Profile image required";
+        if (certifications.length === 0) newErrors.certifications = "At least one certification required";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     /* ---------- Submit ---------- */
@@ -675,6 +826,8 @@ export default function StartupRegistrationForm() {
             hasError = true;
         }
         if (hasError) return;
+        // Full form validation
+        if (!validateForm()) return;
 
         // ✅ All validations passed
         const expertData = {
@@ -744,16 +897,20 @@ export default function StartupRegistrationForm() {
                     <Box sx={{ p: 4 }}>
                         <Grid container spacing={3}>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth label="First Name" required name="firstName" value={expert.firstName} onChange={handleInputChange} />
+                                <TextField fullWidth label="First Name" required name="firstName" value={expert.firstName} onChange={handleNameInput} error={!!errors.firstName}
+                                    helperText={errors.firstName} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth label="Last Name" required name="lastName" value={expert.lastName} onChange={handleInputChange} />
+                                <TextField fullWidth label="Last Name" required name="lastName" value={expert.lastName} onChange={handleNameInput} error={!!errors.lastName}
+                                    helperText={errors.lastName} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth type="email" label="Email Address" required name="email" value={expert.email} onChange={handleInputChange} />
+                                <TextField fullWidth type="email" label="Email Address" required name="email" value={expert.email} onChange={handleInputChange} error={!!errors.email}
+                                    helperText={errors.email} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth label="Phone Number" required name="phone" value={expert.phone} onChange={handleInputChange} />
+                                <TextField fullWidth label="Phone Number" required name="phone" value={expert.phone} onChange={handleNumericInput} error={!!errors.phone}
+                                    helperText={errors.phone} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField
@@ -813,7 +970,7 @@ export default function StartupRegistrationForm() {
                                         }
                                     }}
                                     renderInput={(params) => (
-                                        <TextField {...params} label="Country" required />
+                                        <TextField {...params} label="Country" required error={!!errors.country} helperText={errors.country} />
                                     )}
                                 />
                             </Grid>
@@ -829,7 +986,7 @@ export default function StartupRegistrationForm() {
                                         handleAddressChange("state", v, true);
                                     }}
                                     renderInput={(params) => (
-                                        <TextField {...params} label="State" disabled={!expert.country} required />
+                                        <TextField {...params} label="State" disabled={!expert.country} required error={!!errors.state} helperText={errors.state} />
                                     )}
                                 />
                             </Grid>
@@ -845,7 +1002,7 @@ export default function StartupRegistrationForm() {
                                         handleAddressChange("district", v, true);
                                     }}
                                     renderInput={(params) => (
-                                        <TextField {...params} label="District" disabled={!expert.state} required />
+                                        <TextField {...params} label="District" disabled={!expert.state} required error={!!errors.district} helperText={errors.district} />
                                     )}
                                 />
                             </Grid>
@@ -858,6 +1015,8 @@ export default function StartupRegistrationForm() {
                                     disabled={!expert.district}
                                     value={expert.city}
                                     onChange={(e) => handleAddressChange("city", e.target.value)}
+                                    error={!!errors.city}
+                                    helperText={errors.city}
                                 />
                             </Grid>
                             {/* Area */}
@@ -868,6 +1027,8 @@ export default function StartupRegistrationForm() {
                                     disabled={!expert.city}
                                     value={expert.area}
                                     onChange={(e) => handleAddressChange("area", e.target.value)}
+                                    error={!!errors.area}
+                                    helperText={errors.area}
                                     required
                                 />
                             </Grid>
@@ -878,8 +1039,14 @@ export default function StartupRegistrationForm() {
                                     label="Pincode"
                                     disabled={!expert.area}
                                     value={expert.pinCode}
-                                    inputProps={{ maxLength: 6 }}
                                     onChange={(e) => handleAddressChange("pinCode", e.target.value)}
+                                    inputProps={{
+                                        maxLength: 6,
+                                        inputMode: "numeric",
+                                        pattern: "[0-9]*",
+                                    }}
+                                    error={!!errors.pinCode}
+                                    helperText={errors.pinCode}
                                     required
                                 />
                             </Grid>
@@ -907,7 +1074,7 @@ export default function StartupRegistrationForm() {
                                         }))
                                     }
                                     renderInput={(params) => (
-                                        <TextField {...params} label="Domain" required />
+                                        <TextField {...params} label="Domain" required error={!!errors.domain} helperText={errors.domain} />
                                     )}
                                 />
                             </Grid>
@@ -955,13 +1122,28 @@ export default function StartupRegistrationForm() {
                                 </TextField>
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth required label="Experience(in yrs)" name="experience" value={expert.experience} onChange={handleChange} />
+                                <TextField fullWidth required label="Experience(in yrs)" name="experience" value={expert.experience} onChange={handleNumericInput}
+                                    inputProps={{
+                                        maxLength: 2,
+                                        inputMode: "numeric",
+                                        pattern: "[0-9]*",
+                                    }} error={!!errors.experience} helperText={errors.experience} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField type="number" fullWidth required label="Sessions Completed" name="session" value={expert.session} onChange={handleChange} />
+                                <TextField fullWidth required label="Sessions Completed" name="session" value={expert.session} onChange={handleNumericInput}
+                                    inputProps={{
+                                        maxLength: 5,
+                                        inputMode: "numeric",
+                                        pattern: "[0-9]*",
+                                    }} error={!!errors.session} helperText={errors.session} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField fullWidth required label="Rate (₹ / hr)" name="rate" value={expert.rate} onChange={handleChange} />
+                                <TextField fullWidth required label="Rate (₹ / hr)" name="rate" value={expert.rate} onChange={handleNumericInput}
+                                    inputProps={{
+                                        maxLength: 7,
+                                        inputMode: "numeric",
+                                        pattern: "[0-9]*",
+                                    }} error={!!errors.rate} helperText={errors.rate} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <Box>
@@ -1066,7 +1248,7 @@ export default function StartupRegistrationForm() {
                                 />
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField multiline rows={2} fullWidth required label="About Expert" name="about" value={expert.about} onChange={handleChange} />
+                                <TextField multiline rows={2} fullWidth required label="About Expert" name="about" value={expert.about} onChange={handleChange} error={!!errors.about} helperText={errors.about} />
                             </Grid>
                             <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
                                 <Box sx={{ textAlign: "center" }}>
@@ -1170,7 +1352,8 @@ export default function StartupRegistrationForm() {
                                     label="Account Holder Name"
                                     name="accountHolderName"
                                     value={expert.accountHolderName || ""}
-                                    onChange={handleChange}
+                                    onChange={handleNameInput}
+                                    error={!!errors.accountHolderName} helperText={errors.accountHolderName}
                                 />
                             </Grid>
 
@@ -1181,7 +1364,8 @@ export default function StartupRegistrationForm() {
                                     label="Bank Name"
                                     name="bankName"
                                     value={expert.bankName || ""}
-                                    onChange={handleChange}
+                                    onChange={handleNameInput}
+                                    error={!!errors.bankName} helperText={errors.bankName}
                                 />
                             </Grid>
 
@@ -1193,7 +1377,8 @@ export default function StartupRegistrationForm() {
                                     label="Account Number"
                                     name="accountNumber"
                                     value={expert.accountNumber || ""}
-                                    onChange={handleChange}
+                                    onChange={handleNumericInput}
+                                    error={!!errors.accountNumber} helperText={errors.accountNumber}
                                     inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
                                 />
                             </Grid>
@@ -1205,7 +1390,8 @@ export default function StartupRegistrationForm() {
                                     label="IFSC Code"
                                     name="ifscCode"
                                     value={expert.ifscCode || ""}
-                                    onChange={handleChange}
+                                    onChange={handleInputChange}
+                                    error={!!errors.ifscCode} helperText={errors.ifscCode}
                                     placeholder="SBIN0000123"
                                 />
                             </Grid>
@@ -1232,7 +1418,8 @@ export default function StartupRegistrationForm() {
                                     label="UPI ID (Optional)"
                                     name="upiId"
                                     value={expert.upiId || ""}
-                                    onChange={handleChange}
+                                    onChange={handleUpiInput}
+                                    error={!!errors.upiId} helperText={errors.upiId}
                                     placeholder="name@bank"
                                 />
                             </Grid>
@@ -1257,6 +1444,7 @@ export default function StartupRegistrationForm() {
                                     required
                                     value={expert.websiteUrl}
                                     onChange={handleInputChange}
+                                    error={!!errors.websiteUrl} helperText={errors.websiteUrl}
                                     placeholder="https://example.com"
                                 />
                             </Grid>
@@ -1271,6 +1459,7 @@ export default function StartupRegistrationForm() {
                                     required
                                     value={expert.linkedinUrl}
                                     onChange={handleInputChange}
+                                    error={!!errors.linkedinUrl} helperText={errors.linkedinUrl}
                                     placeholder="https://linkedin.com/company/example"
                                 />
                             </Grid>
@@ -1283,6 +1472,7 @@ export default function StartupRegistrationForm() {
                                     label="Other Page URL"
                                     name="othersUrl"
                                     value={expert.othersUrl}
+                                    error={!!errors.othersUrl} helperText={errors.othersUrl}
                                     onChange={handleInputChange}
                                 />
                             </Grid>
@@ -1294,6 +1484,7 @@ export default function StartupRegistrationForm() {
                                     label="Other Page URL"
                                     name="otherUrl"
                                     value={expert.otherUrl || ""}
+                                    error={!!errors.otherUrl} helperText={errors.otherUrl}
                                     onChange={handleInputChange}
                                 />
                             </Grid>
