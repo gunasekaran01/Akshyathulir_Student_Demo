@@ -850,7 +850,7 @@ export default function StartupRegistrationForm() {
         if (!window.confirm("Delete this expert?")) return;
 
         const res = await fetch(
-            `http://localhost:8000/expert/${expertId}`,
+            `http://localhost:8000/expert/by-id/${expertId}`,
             { method: "DELETE" }
         );
         if (res.ok) {
@@ -954,6 +954,7 @@ export default function StartupRegistrationForm() {
             <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
                 <Button
                     variant="outlined"
+                    color="success"
                     onClick={() => {
                         const id = prompt("Enter Expert ID");
                         if (id) fetchExpertById(id);
@@ -1572,21 +1573,16 @@ export default function StartupRegistrationForm() {
                     <Button
                         type="button"
                         variant="outlined"
-                        color="success"
-                        onClick={handleReset}
+                        color={isEditMode ? "warning" : "success"}
+                        onClick={isEditMode ? handleDelete : handleReset}
                     >
-                        Reset
+                        {isEditMode ? "Delete" : "Reset"}
                     </Button>
 
-                    <Button type="submit">
+
+                    <Button type="submit" variant="contained" color="success">
                         {isEditMode ? "Update" : "Submit"}
                     </Button>
-
-                    {isEditMode && (
-                        <Button color="error" onClick={handleDelete}>
-                            Delete
-                        </Button>
-                    )}
                 </Box>
             </form>
         </Box>
