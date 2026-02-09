@@ -22,7 +22,7 @@ const sectionHeaderStyle = {
     backgroundColor: "#046f0bff",
     color: "#fff",
     padding: "12px 24px",
-    borderRadius: "4px 4px 0 0",
+    borderRadius: "0 0 0 0",
 };
 
 const cardStyle = {
@@ -464,6 +464,8 @@ const validators = {
 
 export default function StartupRegistrationForm() {
     /* ---------- Personal & Digital ---------- */
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [expertId, setExpertId] = useState("");
     const [expert, setExpert] = useState(initialExpertState);
     const [profileImageError, setProfileImageError] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
@@ -800,7 +802,64 @@ export default function StartupRegistrationForm() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    /* ---------- Fetch Expert (Edit Mode) ---------- */
+    const fetchExpertById = async (id) => {
+        try {
+            const res = await fetch(
+                `http://localhost:8000/expert/by-id/${id}`
+            );
+            const data = await res.json();
 
+            if (!res.ok || data.error) {
+                alert("Expert not found");
+                return;
+            }
+
+            setExpert({ ...initialExpertState, ...data });
+
+            // Autocomplete sync
+            setCountryInput(data.country || "");
+            setStateInput(data.state || "");
+            setDistrictInput(data.district || "");
+
+            // Profile image preview
+            if (data.profileImage) {
+                setPreview(`http://localhost:8000/${data.profileImage}`);
+            }
+
+            // Certifications
+            if (data.certifications) {
+                setCertifications(
+                    data.certifications.map(c => ({
+                        name: c.name,
+                        proof: null
+                    }))
+                );
+            }
+
+            setIsEditMode(true);
+            setExpertId(data.expertId);
+        } catch (err) {
+            console.error(err);
+            alert("Fetch failed");
+        }
+    };
+    /* ---------- Delete Expert ---------- */
+    const handleDelete = async () => {
+        if (!expertId) return;
+        if (!window.confirm("Delete this expert?")) return;
+
+        const res = await fetch(
+            `http://localhost:8000/expert/${expertId}`,
+            { method: "DELETE" }
+        );
+        if (res.ok) {
+            alert("Deleted successfully");
+            handleReset();
+            setIsEditMode(false);
+            setExpertId("");
+        }
+    };
     /* ---------- Submit ---------- */
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -846,10 +905,15 @@ export default function StartupRegistrationForm() {
         });
 
         try {
-            const res = await fetch("http://localhost:8000/expert", {
-                method: "POST",
-                body: formData,
-            });
+            const res = await fetch(
+                isEditMode
+                    ? `http://localhost:8000/expert/${expertId}`
+                    : "http://localhost:8000/expert",
+                {
+                    method: isEditMode ? "PUT" : "POST",
+                    body: formData,
+                }
+            );
 
             const data = await res.json();
 
@@ -857,8 +921,7 @@ export default function StartupRegistrationForm() {
                 alert("Registration failed");
                 return;
             }
-
-            alert("Expert registered successfully");
+            alert(`Expert registered successfully!\nYour Expert ID is: ${data.expertId}`);
             handleReset();
 
         } catch (error) {
@@ -888,6 +951,18 @@ export default function StartupRegistrationForm() {
                     Empowering founders with strategic guidance and execution-focused mentorship
                 </Typography>
             </Box>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+                <Button
+                    variant="outlined"
+                    onClick={() => {
+                        const id = prompt("Enter Expert ID");
+                        if (id) fetchExpertById(id);
+                    }}
+                >
+                    Fetch Expert
+                </Button>
+            </Box>
+
             <form onSubmit={handleSubmit}>
                 {/* ================= PERSONAL INFO ================= */}
                 <Paper sx={cardStyle}>
@@ -943,7 +1018,6 @@ export default function StartupRegistrationForm() {
                             {/* Country */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
-                                    freeSolo
                                     options={Array.isArray(countries) ? countries : []}
                                     inputValue={countryInput}
                                     onInputChange={(event, newInputValue) => {
@@ -977,7 +1051,6 @@ export default function StartupRegistrationForm() {
                             {/* State */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
-                                    freeSolo
                                     options={Array.isArray(states) ? states : []}
                                     inputValue={stateInput}
                                     onInputChange={(e, v) => setStateInput(v)}
@@ -993,7 +1066,6 @@ export default function StartupRegistrationForm() {
                             {/* District */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
-                                    freeSolo
                                     options={Array.isArray(districts) ? districts : []}
                                     inputValue={districtInput}
                                     onInputChange={(e, v) => setDistrictInput(v)}
@@ -1200,7 +1272,7 @@ export default function StartupRegistrationForm() {
                                                             🎓 {cert.name}
                                                         </Typography>
                                                         <Typography variant="caption">
-                                                            📄 {cert.proof.name}
+                                                            📄 {cert.proof?.name || "Previously uploaded"}
                                                         </Typography>
                                                     </Box>
                                                     <Button
@@ -1506,13 +1578,15 @@ export default function StartupRegistrationForm() {
                         Reset
                     </Button>
 
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{ bgcolor: "#2e7d32" }}
-                    >
-                        Submit
+                    <Button type="submit">
+                        {isEditMode ? "Update" : "Submit"}
                     </Button>
+
+                    {isEditMode && (
+                        <Button color="error" onClick={handleDelete}>
+                            Delete
+                        </Button>
+                    )}
                 </Box>
             </form>
         </Box>
