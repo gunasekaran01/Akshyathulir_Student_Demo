@@ -404,6 +404,7 @@ const initialExpertState = {
     city: "",
     area: "",
     pinCode: "",
+    address: "",
     mode: "",
     about: "",
     experience: "",
@@ -775,8 +776,6 @@ export default function StartupRegistrationForm() {
                 pinCode: errorMsg,
             }));
         }
-
-
         setExpert(updated);
     };
 
@@ -814,29 +813,24 @@ export default function StartupRegistrationForm() {
                 alert("Expert not found");
                 return;
             }
-
-            setExpert({ ...initialExpertState, ...data });
-
+            setExpert({ ...initialExpertState, ...data })
             // Autocomplete sync
             setCountryInput(data.country || "");
             setStateInput(data.state || "");
             setDistrictInput(data.district || "");
-
-            // Profile image preview
+            // profile image
             if (data.profileImage) {
                 setPreview(`http://localhost:8000/${data.profileImage}`);
             }
-
             // Certifications
             if (data.certifications) {
                 setCertifications(
                     data.certifications.map(c => ({
                         name: c.name,
-                        proof: null
+                        proof: c.proof
                     }))
                 );
             }
-
             setIsEditMode(true);
             setExpertId(data.expertId);
         } catch (err) {
@@ -880,7 +874,7 @@ export default function StartupRegistrationForm() {
             setErrors((prev) => ({ ...prev, languages: true }));
             hasError = true;
         }
-        if (!profileImage) {
+        if (!profileImage && !preview) {
             setProfileImageError(true);
             hasError = true;
         }
@@ -891,38 +885,44 @@ export default function StartupRegistrationForm() {
         // ✅ All validations passed
         const expertData = {
             ...expert,
-            certifications: certifications.map((c) => ({
+            certifications: certifications.map(c => ({
                 name: c.name,
-                Proof: c.proof.name,
+                Proof: c.proof ? c.proof.name : ""
             })),
         };
         const formData = new FormData();
         formData.append("expertData", JSON.stringify(expertData));
         formData.append("image", profileImage);
 
-        certifications.forEach((cert) => {
-            formData.append("certProofs", cert.proof);
-        });
+        if (profileImage instanceof File) {
+            formData.append("image", profileImage);
+        }
+
+        certifications
+            .filter(c => c.proof instanceof File)
+            .forEach(c => {
+                formData.append("certProofs", c.proof);
+            });
 
         try {
             const res = await fetch(
                 isEditMode
-                    ? `http://localhost:8000/expert/${expertId}`
+                    ? `http://localhost:8000/expert/by-id/${expertId}`
                     : "http://localhost:8000/expert",
                 {
                     method: isEditMode ? "PUT" : "POST",
                     body: formData,
                 }
             );
-
             const data = await res.json();
-
             if (!res.ok) {
                 alert("Registration failed");
                 return;
             }
-            alert(`Expert registered successfully!\nYour Expert ID is: ${data.expertId}`);
-            handleReset();
+            isEditMode                        
+                    ? alert("Expert updated successfully!")
+                    : alert(`Expert registered successfully!\nYour User ID is: ${data.expertId}`);
+           handleReset();
 
         } catch (error) {
             console.error("API Error:", error);
@@ -1019,6 +1019,7 @@ export default function StartupRegistrationForm() {
                             {/* Country */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
+                                    value={expert.country || null}
                                     options={Array.isArray(countries) ? countries : []}
                                     inputValue={countryInput}
                                     onInputChange={(event, newInputValue) => {
@@ -1026,7 +1027,6 @@ export default function StartupRegistrationForm() {
                                     }}
                                     onChange={(event, newValue) => {
                                         setCountryInput(newValue || "");
-
                                         setExpert((prev) => ({
                                             ...prev,
                                             country: newValue || "",
@@ -1052,6 +1052,7 @@ export default function StartupRegistrationForm() {
                             {/* State */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
+                                    value={expert.state || null}
                                     options={Array.isArray(states) ? states : []}
                                     inputValue={stateInput}
                                     onInputChange={(e, v) => setStateInput(v)}
@@ -1067,6 +1068,7 @@ export default function StartupRegistrationForm() {
                             {/* District */}
                             <Grid size={{ xs: 12, md: 2 }}>
                                 <Autocomplete
+                                    value={expert.district || null}
                                     options={Array.isArray(districts) ? districts : []}
                                     inputValue={districtInput}
                                     onInputChange={(e, v) => setDistrictInput(v)}
@@ -1194,6 +1196,19 @@ export default function StartupRegistrationForm() {
                                     <MenuItem value="Online, Offline">Online & Offline</MenuItem>
                                 </TextField>
                             </Grid>
+                            {(expert.mode === "Offline" || expert.mode === "Online, Offline") && (
+                                <Grid size={{ xs: 12, md: 6 }}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Address"
+                                        name="address"
+                                        value={expert.address || ""}
+                                        onChange={handleChange}
+                                        placeholder="Enter your address"
+                                    />
+                                </Grid>
+                            )}
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField fullWidth required label="Experience(in yrs)" name="experience" value={expert.experience} onChange={handleNumericInput}
                                     inputProps={{
@@ -1273,9 +1288,35 @@ export default function StartupRegistrationForm() {
                                                             🎓 {cert.name}
                                                         </Typography>
                                                         <Typography variant="caption">
-                                                            📄 {cert.proof?.name || "Previously uploaded"}
+                                                            {typeof cert.proof === "string" && (
+                                                                <Button
+                                                                    size="small"
+                                                                    href={`http://localhost:8000/${cert.proof}`}
+                                                                    target="_blank"
+                                                                >
+                                                                    View
+                                                                </Button>
+                                                            )}
                                                         </Typography>
                                                     </Box>
+                                                    <Button component="label" size="small">
+                                                        Replace
+                                                        <input
+                                                            type="file"
+                                                            hidden
+                                                            accept=".pdf,image/*"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files[0];
+                                                                if (!file) return;
+
+                                                                setCertifications(prev =>
+                                                                    prev.map((c, i) =>
+                                                                        i === index ? { ...c, proof: file } : c
+                                                                    )
+                                                                );
+                                                            }}
+                                                        />
+                                                    </Button>
                                                     <Button
                                                         color="error"
                                                         size="small"
@@ -1578,8 +1619,6 @@ export default function StartupRegistrationForm() {
                     >
                         {isEditMode ? "Delete" : "Reset"}
                     </Button>
-
-
                     <Button type="submit" variant="contained" color="success">
                         {isEditMode ? "Update" : "Submit"}
                     </Button>
