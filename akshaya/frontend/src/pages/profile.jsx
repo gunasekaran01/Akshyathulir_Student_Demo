@@ -22,7 +22,7 @@ const sectionHeaderStyle = {
     backgroundColor: "#1f4d3a",
     color: "#fff",
     padding: "12px 24px",
-    borderRadius: "0 0 0 0",
+    borderRadius: "2px 0 0 0",
 };
 
 const cardStyle = {
