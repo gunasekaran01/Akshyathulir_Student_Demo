@@ -53,6 +53,8 @@ const COLORS = {
   mint: "#66BB6A",
   warning: "#FB8C00",
   danger: "#E53935",
+  head:"#25544a",
+  ehead:"#1f4d3a",
 };
 
 /* ------------------ KPI DATA ------------------ */
@@ -205,7 +207,7 @@ export default function ExpertAvailability() {
           p: 4,
           mb: 4,
           borderRadius: 4,
-          background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
+          background: `linear-gradient(135deg, ${COLORS.ehead}, ${COLORS.head})`,
           color: "#fff",
         }}
       >
@@ -547,7 +549,7 @@ export default function ExpertAvailability() {
         <Table>
           <TableHead
             sx={{
-              background: COLORS.main,
+              background: COLORS.ehead,
               "& .MuiTableCell-head": {
                 color: "#fff",
                 fontWeight: "bold",
@@ -581,7 +583,7 @@ export default function ExpertAvailability() {
           mt: 4,
           p: 4,
           borderRadius: 4,
-          background: `linear-gradient(135deg, ${COLORS.main}, ${COLORS.mint})`,
+          background: `linear-gradient(135deg, ${COLORS.ehead}, ${COLORS.main})`,
           color: "#fff",
           textAlign: "center",
         }}

@@ -34,6 +34,8 @@ const COLORS = {
   mint: "#66BB6A",
   warning: "#FB8C00",
   danger: "#E53935",
+  head: "#25544a",
+  ehead: "#1f4d3a",
 };
 
 /* ------------------ KPI DATA ------------------ */
@@ -184,7 +186,7 @@ export default function ExpertResources() {
           p: 4,
           mb: 4,
           borderRadius: 4,
-          background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
+          background: `linear-gradient(135deg, ${COLORS.ehead}, ${COLORS.head})`,
           color: "#fff",
         }}
       >
@@ -528,7 +530,7 @@ export default function ExpertResources() {
       <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
         <Table>
           <TableHead sx={{
-            background: COLORS.main, "& .MuiTableCell-head": {
+            background: COLORS.ehead, "& .MuiTableCell-head": {
               color: "#fff",
               fontWeight: "bold",
             },

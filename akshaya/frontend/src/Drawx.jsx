@@ -21,7 +21,7 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-  backgroundColor: '#1a3e36', 
+  backgroundColor: '#1f4d3a', 
   color: '#fff',
 });
 
@@ -32,7 +32,7 @@ const closedMixin = (theme) => ({
   }),
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
-  backgroundColor: '#1a3e36',
+  backgroundColor: '#1f4d3a',
   color: '#fff',
 });
 
@@ -124,7 +124,7 @@ export default function Drawx() {
       </StyledDrawer>
 
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, bgcolor: '#1a3e36', p: 2, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, bgcolor: '#1f4d3a', p: 2, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
           <Typography variant="h5" fontWeight="bold" color="#fff"> Expert Dashboard</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Tooltip title="Account settings">

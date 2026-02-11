@@ -43,6 +43,8 @@ const COLORS = {
   mint: "#66BB6A",
   warning: "#FB8C00",
   danger: "#E53935",
+  head: "#25544a",
+  ehead: "#1f4d3a",
 };
 
 const growthData = [
@@ -74,15 +76,15 @@ const colors = ["#aed581", "#81c784", "#4caf50", "#2e7d32"];
 
 export default function Dashboard() {
   return (
-    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
+    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
       {/* HEADER */}
-      <Box  sx={{
-          p: 4,
-          mb: 4,
-          borderRadius: 4,
-          background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
-          color: "#fff",
-        }}>
+      <Box sx={{
+        p: 4,
+        mb: 4,
+        borderRadius: 4,
+        background: `linear-gradient(135deg, ${COLORS.ehead }, ${COLORS.head})`,
+        color: "#fff",
+      }}>
         <Typography variant="h4" fontWeight="bold">
           Expert Dashboard
         </Typography>
@@ -101,16 +103,17 @@ export default function Dashboard() {
           { label: "Session Utilization", value: "82%", icon: <InsightsIcon /> },
         ].map((kpi, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
-            <Card sx={{height: "100%",
-                borderRadius: 4,
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
-                background: "rgba(255,255,255,0.9)",
-                backdropFilter: "blur(10px)",
-              }}>
+            <Card sx={{
+              height: "100%",
+              borderRadius: 4,
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
+              background: "rgba(255,255,255,0.9)",
+              backdropFilter: "blur(10px)",
+            }}>
               <CardContent>
                 <Stack direction="row" spacing={4} alignItems="center">
                   <Avatar sx={{ bgcolor: "#e8f5e9", color: "#2e7d32" }}>
@@ -133,57 +136,59 @@ export default function Dashboard() {
         ))}
       </Grid>
       {/* TABLE SECTION */}
-          <Typography variant="h6" fontWeight="bold" mb={2}>
-            Performance Summary
-          </Typography>
+      <Typography variant="h6" fontWeight="bold" mb={2}>
+        Performance Summary
+      </Typography>
 
       <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
-          <Table>
-            <TableHead sx={{ background: COLORS.main,"& .MuiTableCell-head": {
+        <Table>
+          <TableHead sx={{
+            background: COLORS.ehead, "& .MuiTableCell-head": {
               color: "#fff",
               fontWeight: "bold",
-            }, }} >
-              <TableRow>
-                <TableCell>Startup</TableCell>
-                <TableCell>Stage</TableCell>
-                <TableCell>Progress</TableCell>
-                <TableCell>Last Session</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow> 
-            </TableHead>
-            <TableBody>
-              {[
-                { name: "AgroTech AI", stage: "MVP", progress: 70, status: "Healthy" },
-                { name: "FinPay", stage: "Idea", progress: 40, status: "Needs Attention" },
-                { name: "HealthSync", stage: "Growth", progress: 85, status: "Excellent" },
-                { name: "EduChain", stage: "Validation", progress: 55, status: "Stable" },
-              ].map((row, i) => (
-                <TableRow key={i}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.stage}</TableCell>
-                  <TableCell>
-                    <LinearProgress
-                      value={row.progress}
-                      variant="determinate" color="success" 
-                    />
-                  </TableCell>
-                  <TableCell>3 days ago</TableCell>
-                  <TableCell >{row.status}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            },
+          }} >
+            <TableRow>
+              <TableCell>Startup</TableCell>
+              <TableCell>Stage</TableCell>
+              <TableCell>Progress</TableCell>
+              <TableCell>Last Session</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[
+              { name: "AgroTech AI", stage: "MVP", progress: 70, status: "Healthy" },
+              { name: "FinPay", stage: "Idea", progress: 40, status: "Needs Attention" },
+              { name: "HealthSync", stage: "Growth", progress: 85, status: "Excellent" },
+              { name: "EduChain", stage: "Validation", progress: 55, status: "Stable" },
+            ].map((row, i) => (
+              <TableRow key={i}>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.stage}</TableCell>
+                <TableCell>
+                  <LinearProgress
+                    value={row.progress}
+                    variant="determinate" color="success"
+                  />
+                </TableCell>
+                <TableCell>3 days ago</TableCell>
+                <TableCell >{row.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <Grid container spacing={2} my={3}>
         <Grid item xs={12} md={4}>
           <Card
             sx={{
               borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 180,
               display: "flex",
@@ -200,7 +205,7 @@ export default function Dashboard() {
               <Typography fontWeight="bold">Session Effectiveness</Typography>
 
               <Typography mt={2}>Session Utilization: 82%</Typography>
-              <LinearProgress value={82} variant="determinate" color="success"  />
+              <LinearProgress value={82} variant="determinate" color="success" />
 
               <Typography mt={2}>Action Item Closure: 67%</Typography>
               <LinearProgress value={67} variant="determinate" color="success" />
@@ -217,10 +222,10 @@ export default function Dashboard() {
             sx={{
               borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 180,
               display: "flex",
@@ -252,10 +257,10 @@ export default function Dashboard() {
             sx={{
               borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 180,
               display: "flex",
@@ -289,12 +294,13 @@ export default function Dashboard() {
         {/* GROWTH CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{borderRadius: 4,
+            sx={{
+              borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 400,
               display: "flex",
@@ -333,12 +339,13 @@ export default function Dashboard() {
         {/* REVENUE CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{ borderRadius: 4,
+            sx={{
+              borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 400,
               display: "flex",
@@ -372,12 +379,13 @@ export default function Dashboard() {
         {/* PIE CHART */}
         <Grid item xs={12} md={4}>
           <Card
-            sx={{ borderRadius: 4,
+            sx={{
+              borderRadius: 4,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+              "&:hover": {
+                transform: "translateY(-6px)",
+                boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+              },
               width: 450,
               height: 400,
               display: "flex",

@@ -36,6 +36,8 @@ const COLORS = {
   mint: "#66BB6A",
   warning: "#FB8C00",
   danger: "#E53935",
+  head: "#25544a",
+  ehead: "#1f4d3a",
 };
 
 /* ------------------ KPI DATA ------------------ */
@@ -45,7 +47,7 @@ const revenueKpis = [
   { label: "Avg / Session", value: "₹3,000", icon: <EventIcon /> },
   { label: "Revenue Growth", value: "+18%", icon: <TrendingUpIcon /> },
   { label: "Total Sessions", value: "160", icon: <GroupsIcon /> },
-   { label: "Pending Payout", value: "₹38,000", icon: <AccountBalanceIcon /> },
+  { label: "Pending Payout", value: "₹38,000", icon: <AccountBalanceIcon /> },
 ];
 
 /* ------------------ CHART DATA ------------------ */
@@ -74,7 +76,7 @@ const transactions = [
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertRevenue() {
   return (
-    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2}}>
+    <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
 
       {/* 💰 HEADER */}
       <Box
@@ -82,7 +84,7 @@ export default function ExpertRevenue() {
           p: 4,
           mb: 4,
           borderRadius: 4,
-          background: `linear-gradient(135deg, ${COLORS.dark}, ${COLORS.main})`,
+          background: `linear-gradient(135deg, ${COLORS.ehead}, ${COLORS.head})`,
           color: "#fff",
         }}
       >
@@ -120,7 +122,7 @@ export default function ExpertRevenue() {
                     <Typography variant="body2" color="text.secondary">
                       {k.label}
                     </Typography>
-                    <Typography  variant="h6"
+                    <Typography variant="h6"
                       fontWeight="bold"
                       sx={{ color: COLORS.main }} >
                       {k.value}
@@ -136,13 +138,15 @@ export default function ExpertRevenue() {
       {/* 📈 CHARTS */}
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 4,transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+          <Card sx={{
+            borderRadius: 4, transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 450,
-            height: 400}}>
+            height: 400
+          }}>
             <CardContent>
               <Typography fontWeight="bold" mb={2}>
                 Monthly Revenue Trend
@@ -165,13 +169,15 @@ export default function ExpertRevenue() {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 4, transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+          <Card sx={{
+            borderRadius: 4, transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 400,
-            height: 400 }}>
+            height: 400
+          }}>
             <CardContent>
               <Typography fontWeight="bold" mb={2}>
                 Revenue Sources
@@ -196,13 +202,15 @@ export default function ExpertRevenue() {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 4, transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-                },
+          <Card sx={{
+            borderRadius: 4, transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
+            },
             width: 450,
-            height: 400 }}>
+            height: 400
+          }}>
             <CardContent>
               <Typography fontWeight="bold" mb={2}>
                 Revenue Comparison
@@ -226,10 +234,12 @@ export default function ExpertRevenue() {
 
       <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
         <Table>
-          <TableHead sx={{ background: COLORS.main, "& .MuiTableCell-head": {
+          <TableHead sx={{
+            background: COLORS.ehead, "& .MuiTableCell-head": {
               color: "#fff",
               fontWeight: "bold",
-            }, }}>
+            },
+          }}>
             <TableRow>
               <TableCell>Startup</TableCell>
               <TableCell>Amount</TableCell>

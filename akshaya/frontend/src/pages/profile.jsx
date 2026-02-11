@@ -19,7 +19,7 @@ import Cropper from "react-easy-crop";
 
 /*=====style======*/
 const sectionHeaderStyle = {
-    backgroundColor: "#046f0bff",
+    backgroundColor: "#1f4d3a",
     color: "#fff",
     padding: "12px 24px",
     borderRadius: "0 0 0 0",
@@ -32,8 +32,8 @@ const cardStyle = {
     overflow: "hidden"
 };
 const COLORS = {
-    dark: "#1B5E20",
-    main: "#2E7D32",
+    dark: "#1f4d3a",
+    main: "#25544a",
     light: "#E8F5E9",
     mint: "#66BB6A",
     warning: "#FB8C00",
@@ -919,10 +919,10 @@ export default function StartupRegistrationForm() {
                 alert("Registration failed");
                 return;
             }
-            isEditMode                        
-                    ? alert("Expert updated successfully!")
-                    : alert(`Expert registered successfully!\nYour User ID is: ${data.expertId}`);
-           handleReset();
+            isEditMode
+                ? alert("Expert updated successfully!")
+                : alert(`Expert registered successfully!\nYour User ID is: ${data.expertId}`);
+            handleReset();
 
         } catch (error) {
             console.error("API Error:", error);
