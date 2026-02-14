@@ -463,10 +463,9 @@ const validators = {
         !v || /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(v) ? "" : "Invalid UPI ID (e.g. name@bank)",
 };
 
-export default function StartupRegistrationForm() {
+export default function ExpertRegistrationForm() {
     /* ---------- Personal & Digital ---------- */
     const [isEditMode, setIsEditMode] = useState(false);
-    const [expertId, setExpertId] = useState("");
     const [expert, setExpert] = useState(initialExpertState);
     const [profileImageError, setProfileImageError] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
@@ -509,30 +508,6 @@ export default function StartupRegistrationForm() {
     const [certifications, setCertifications] = useState([]);
     // [{ name: string, proof: File }]
     const [certificationError, setCertificationError] = useState(false);
-    //------------- RESET ------------//
-    const handleReset = () => {
-        setExpert(initialExpertState);
-        setStates([]);
-        setDistricts([]);
-        setCountryInput("");
-        setStateInput("");
-        setDistrictInput("");
-        // CLEAR IMAGE STATES
-        setProfileImage(null);
-        setProfileImageError(false);
-        setPreview("");
-        setImageSrc(null);
-        setCropOpen(false);
-        setCrop({ x: 0, y: 0 });
-        setZoom(1);
-        setCroppedAreaPixels(null);
-        //clear certificate
-        setCertificationInput("");
-        setCertifications([]);
-        setCertificationError(false);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-    };
-
     /* ---------- Address ---------- */
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
@@ -801,58 +776,78 @@ export default function StartupRegistrationForm() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    /* ---------- Fetch Expert (Edit Mode) ---------- */
-    const fetchExpertById = async (id) => {
-        try {
-            const res = await fetch(
-                `http://localhost:8000/expert/by-id/${id}`
-            );
-            const data = await res.json();
+    /* ---------- Auto Fetch Expert (On Mail) ---------- */
+    useEffect(() => {
+        const email = localStorage.getItem("expertEmail");
 
-            if (!res.ok || data.error) {
-                alert("Expert not found");
-                return;
-            }
-            setExpert({ ...initialExpertState, ...data })
-            // Autocomplete sync
-            setCountryInput(data.country || "");
-            setStateInput(data.state || "");
-            setDistrictInput(data.district || "");
-            // profile image
-            if (data.profileImage) {
-                setPreview(`http://localhost:8000/${data.profileImage}`);
-            }
-            // Certifications
-            if (data.certifications) {
-                setCertifications(
-                    data.certifications.map(c => ({
-                        name: c.name,
-                        proof: c.proof
-                    }))
-                );
-            }
-            setIsEditMode(true);
-            setExpertId(data.expertId);
-        } catch (err) {
-            console.error(err);
-            alert("Fetch failed");
+        if (email) {
+            fetch(`http://localhost:8000/expert/by-email/${encodeURIComponent(email)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        setExpert({ ...initialExpertState, ...data });
+                        // Autocomplete sync
+                        setCountryInput(data.country || "");
+                        setStateInput(data.state || "");
+                        setDistrictInput(data.district || "");
+
+                        if (data.profileImage) {
+                            setPreview(`http://localhost:8000/${data.profileImage}`);
+                        }
+                        // Certifications
+                        if (data.certifications) {
+                            setCertifications(
+                                data.certifications.map(c => ({
+                                    name: c.name,
+                                    proof: c.proof
+                                }))
+                            );
+                        }
+                        setIsEditMode(true);
+                    }
+                })
+                .catch(err => console.error("Auto fetch failed", err));
         }
-    };
+    }, []);
+
     /* ---------- Delete Expert ---------- */
     const handleDelete = async () => {
-        if (!expertId) return;
+        if (!expert.email) return;
         if (!window.confirm("Delete this expert?")) return;
 
         const res = await fetch(
-            `http://localhost:8000/expert/by-id/${expertId}`,
+            `http://localhost:8000/expert/by-email/${expert.email}`,
             { method: "DELETE" }
         );
         if (res.ok) {
             alert("Deleted successfully");
             handleReset();
             setIsEditMode(false);
-            setExpertId("");
+            localStorage.removeItem("expertEmail");
         }
+    };
+    //------------- RESET ------------//
+    const handleReset = () => {
+        setExpert(initialExpertState);
+        setStates([]);
+        setDistricts([]);
+        setCountryInput("");
+        setStateInput("");
+        setDistrictInput("");
+        // CLEAR IMAGE STATES
+        setProfileImage(null);
+        setProfileImageError(false);
+        setPreview("");
+        setImageSrc(null);
+        setCropOpen(false);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setCroppedAreaPixels(null);
+        //clear certificate
+        setCertificationInput("");
+        setCertifications([]);
+        setCertificationError(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
     /* ---------- Submit ---------- */
     const handleSubmit = async (e) => {
@@ -885,9 +880,14 @@ export default function StartupRegistrationForm() {
         // ✅ All validations passed
         const expertData = {
             ...expert,
+            websiteUrl: expert.websiteUrl || null,
+            linkedinUrl: expert.linkedinUrl || null,
+            othersUrl: expert.othersUrl || null,
+            otherUrl: expert.otherUrl || null,
+
             certifications: certifications.map(c => ({
                 name: c.name,
-                Proof: c.proof ? c.proof.name : ""
+                proof: c.proof ? c.proof.name : ""
             })),
         };
         const formData = new FormData();
@@ -907,7 +907,7 @@ export default function StartupRegistrationForm() {
         try {
             const res = await fetch(
                 isEditMode
-                    ? `http://localhost:8000/expert/by-id/${expertId}`
+                    ? `http://localhost:8000/expert/by-email/${expert.email}`
                     : "http://localhost:8000/expert",
                 {
                     method: isEditMode ? "PUT" : "POST",
@@ -919,9 +919,11 @@ export default function StartupRegistrationForm() {
                 alert("Registration failed");
                 return;
             }
+            localStorage.setItem("expertEmail", expert.email);
+
             isEditMode
                 ? alert("Expert updated successfully!")
-                : alert(`Expert registered successfully!\nYour User ID is: ${data.expertId}`);
+                : alert("Expert registered successfully!");
             handleReset();
 
         } catch (error) {
@@ -931,7 +933,6 @@ export default function StartupRegistrationForm() {
 
         handleReset();
     };
-
     /* ========== main =========== */
     return (
         <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
@@ -951,19 +952,6 @@ export default function StartupRegistrationForm() {
                     Empowering founders with strategic guidance and execution-focused mentorship
                 </Typography>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-                <Button
-                    variant="outlined"
-                    color="success"
-                    onClick={() => {
-                        const id = prompt("Enter Expert ID");
-                        if (id) fetchExpertById(id);
-                    }}
-                >
-                    Fetch Expert
-                </Button>
-            </Box>
-
             <form onSubmit={handleSubmit}>
                 {/* ================= PERSONAL INFO ================= */}
                 <Paper sx={cardStyle}>
@@ -1201,7 +1189,7 @@ export default function StartupRegistrationForm() {
                                     <TextField
                                         fullWidth
                                         required
-                                        label="Address"
+                                        label="Session Venue/Address"
                                         name="address"
                                         value={expert.address || ""}
                                         onChange={handleChange}
