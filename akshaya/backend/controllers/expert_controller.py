@@ -3,7 +3,7 @@ import shutil
 import json
 from typing import List, Optional
 from fastapi import UploadFile, Request
-from database import experts, PROFILE_DIR, CERT_DIR
+from database import experts, PROFILE_DIR, CERT_DIR,generate_expert_id
 from models import Expert
 
 
@@ -46,6 +46,7 @@ async def create_expert_controller(
 
         expert_dict["profileImage"] = profile_path
         expert_dict["certifications"] = saved_certs
+        expert_dict["expertId"] = generate_expert_id()
 
         experts.insert_one(expert_dict)
 

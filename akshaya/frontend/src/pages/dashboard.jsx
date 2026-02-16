@@ -15,6 +15,8 @@ import {
   TableContainer,
   Paper,
 } from "@mui/material";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import {
   LineChart,
@@ -46,35 +48,34 @@ const COLORS = {
   head: "#25544a",
   ehead: "#1f4d3a",
 };
-
-const growthData = [
-  { month: "Aug", value: 20 },
-  { month: "Sep", value: 35 },
-  { month: "Oct", value: 55 },
-  { month: "Nov", value: 70 },
-  { month: "Dec", value: 85 },
-  { month: "Jan", value: 95 },
-];
-
-const revenueData = [
-  { month: "Aug", value: 8000 },
-  { month: "Sep", value: 11000 },
-  { month: "Oct", value: 14000 },
-  { month: "Nov", value: 16500 },
-  { month: "Dec", value: 17500 },
-  { month: "Jan", value: 18000 },
-];
-
-const stageData = [
-  { name: "Idea", value: 10 },
-  { name: "MVP", value: 15 },
-  { name: "Growth", value: 25 },
-  { name: "Validation", value: 50 },
-];
-
 const colors = ["#aed581", "#81c784", "#4caf50", "#2e7d32"];
 
+
 export default function Dashboard() {
+
+  const [kpi_dashboard, setKpiDashboard] = useState({});
+  const [growthData, setGrowthData] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [StageDistribution, setStageDistribution] = useState([]);
+  const [PerformanceSummary, setPerformanceSummary] = useState([]);
+  useEffect(() => {
+
+    axios.get("http://127.0.0.1:8000/dashboard/kpi_dashboard")
+      .then(res => setKpiDashboard(res.data));
+
+    axios.get("http://127.0.0.1:8000/dashboard/growth")
+      .then(res => setGrowthData(res.data));
+
+    axios.get("http://127.0.0.1:8000/dashboard/revenue")
+      .then(res => setRevenueData(res.data));
+
+    axios.get("http://127.0.0.1:8000/dashboard/PerformanceSummary")
+      .then(res => setPerformanceSummary(res.data));
+
+    axios.get("http://127.0.0.1:8000/dashboard/StageDistribution")
+      .then(res => setStageDistribution(res.data));
+
+  }, []);
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
       {/* HEADER */}
@@ -82,7 +83,7 @@ export default function Dashboard() {
         p: 4,
         mb: 4,
         borderRadius: 4,
-        background: `linear-gradient(135deg, ${COLORS.ehead }, ${COLORS.head})`,
+        background: `linear-gradient(135deg, ${COLORS.ehead}, ${COLORS.head})`,
         color: "#fff",
       }}>
         <Typography variant="h4" fontWeight="bold">
@@ -95,12 +96,12 @@ export default function Dashboard() {
       {/* KPI BAND */}
       <Grid container spacing={3} mb={2}>
         {[
-          { label: "Total Mentees", value: "12", icon: <GroupsIcon /> },
-          { label: "Sessions Conducted", value: "28", icon: <EventIcon /> },
-          { label: "Avg. Rating", value: "4.8 / 5", icon: <StarIcon /> },
-          { label: "Monthly Revenue", value: "₹18,000", icon: <CurrencyRupeeIcon /> },
-          { label: "Growth Impact", value: "+32%", icon: <TrendingUpIcon /> },
-          { label: "Session Utilization", value: "82%", icon: <InsightsIcon /> },
+          { label: "Total Mentees", value: kpi_dashboard.totalMentees || 0, icon: <GroupsIcon /> },
+          { label: "Sessions Conducted", value: kpi_dashboard.totalSessions || 0, icon: <EventIcon /> },
+          { label: "Avg. Rating", value: kpi_dashboard.averageRating || 0, icon: <StarIcon /> },
+          { label: "Monthly Revenue", value: `₹${kpi_dashboard.monthlyRevenue || 0}`, icon: <CurrencyRupeeIcon /> },
+          { label: "Growth Impact", value: `${kpi_dashboard.growthImpact || 0}%`, icon: <TrendingUpIcon /> },
+          { label: "Session Utilization", value: `${kpi_dashboard.sessionUtilization || 0}%`, icon: <InsightsIcon /> },
         ].map((kpi, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
             <Card sx={{
@@ -157,12 +158,7 @@ export default function Dashboard() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {[
-              { name: "AgroTech AI", stage: "MVP", progress: 70, status: "Healthy" },
-              { name: "FinPay", stage: "Idea", progress: 40, status: "Needs Attention" },
-              { name: "HealthSync", stage: "Growth", progress: 85, status: "Excellent" },
-              { name: "EduChain", stage: "Validation", progress: 55, status: "Stable" },
-            ].map((row, i) => (
+            {PerformanceSummary.map((row, i) => (
               <TableRow key={i}>
                 <TableCell>{row.name}</TableCell>
                 <TableCell>{row.stage}</TableCell>
@@ -172,7 +168,7 @@ export default function Dashboard() {
                     variant="determinate" color="success"
                   />
                 </TableCell>
-                <TableCell>3 days ago</TableCell>
+                <TableCell>{row.lastSession}</TableCell>
                 <TableCell >{row.status}</TableCell>
               </TableRow>
             ))}
@@ -204,8 +200,8 @@ export default function Dashboard() {
             >
               <Typography fontWeight="bold">Session Effectiveness</Typography>
 
-              <Typography mt={2}>Session Utilization: 82%</Typography>
-              <LinearProgress value={82} variant="determinate" color="success" />
+              <Typography mt={2}>Session Utilization: {kpi_dashboard.sessionUtilization}%</Typography>
+              <LinearProgress value={kpi_dashboard.sessionUtilization} variant="determinate" color="success" />
 
               <Typography mt={2}>Action Item Closure: 67%</Typography>
               <LinearProgress value={67} variant="determinate" color="success" />
@@ -241,8 +237,8 @@ export default function Dashboard() {
             >
               <Typography fontWeight="bold">Revenue & Value Contribution</Typography>
 
-              <Typography mt={2}>Monthly Revenue: ₹18,000</Typography>
-              <Typography>Growth Contribution: +32%</Typography>
+              <Typography mt={2}>Monthly Revenue: ₹{kpi_dashboard.monthlyRevenue}</Typography>
+              <Typography>Growth Contribution: +{kpi_dashboard.growthImpact}%</Typography>
 
               <Typography variant="body2" mt={2} color="text.secondary">
                 Revenue growth aligns with startup success, indicating value-driven
@@ -414,11 +410,11 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={stageData}
+                      data={StageDistribution}
                       dataKey="value"
                       outerRadius={120}
                     >
-                      {stageData.map((_, i) => (
+                      {StageDistribution.map((_, i) => (
                         <Cell key={i} fill={colors[i]} />
                       ))}
                     </Pie>

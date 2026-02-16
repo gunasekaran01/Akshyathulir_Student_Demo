@@ -1235,7 +1235,7 @@ export default function ExpertRegistrationForm() {
                                         }
                                         onChange={(e) => setCertificationInput(e.target.value)}
                                     />
-                                    <Button variant="outlined" component="label" sx={{ mt: 1, mr: 1, p: 1 }}>
+                                    <Button variant="outlined" component="label" sx={{ mt: 1, mr: 1, p: 1 }} color="success">
                                         Upload Certification Proof
                                         <input
                                             type="file"
@@ -1251,6 +1251,7 @@ export default function ExpertRegistrationForm() {
                                     )}
                                     <Button
                                         variant="contained"
+                                        color="success"
                                         sx={{ mt: 1, p: 1 }}
                                         onClick={handleAddCertification}
                                     > Add Certification
@@ -1281,13 +1282,14 @@ export default function ExpertRegistrationForm() {
                                                                     size="small"
                                                                     href={`http://localhost:8000/${cert.proof}`}
                                                                     target="_blank"
+                                                                    color="success"
                                                                 >
                                                                     View
                                                                 </Button>
                                                             )}
                                                         </Typography>
                                                     </Box>
-                                                    <Button component="label" size="small">
+                                                    <Button component="label" size="small" color="success">
                                                         Replace
                                                         <input
                                                             type="file"
@@ -1362,7 +1364,7 @@ export default function ExpertRegistrationForm() {
                                             mb: 2,
                                             border: profileImageError
                                                 ? "2px solid red"
-                                                : "3px solid #1976d2",
+                                                : "3px solid #397b6c",
                                         }}
                                     />
                                     {cropOpen && (
@@ -1417,6 +1419,7 @@ export default function ExpertRegistrationForm() {
                                     <Button
                                         variant="outlined"
                                         component="label"
+                                        color="success"
                                     >
                                         Upload Profile Image
                                         <input
