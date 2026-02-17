@@ -33,4 +33,4 @@ def get_expert_by_email(email: str):
 
 @router.delete("/expert/by-email/{email}")
 def delete_expert_by_email(email: str):
-    return delete_expert_controller(email)
+    return delete_expert_controller(email) 

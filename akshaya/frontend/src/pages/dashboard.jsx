@@ -58,24 +58,25 @@ export default function Dashboard() {
   const [revenueData, setRevenueData] = useState([]);
   const [StageDistribution, setStageDistribution] = useState([]);
   const [PerformanceSummary, setPerformanceSummary] = useState([]);
+  const email = localStorage.getItem("expertEmail");
   useEffect(() => {
 
-    axios.get("http://127.0.0.1:8000/dashboard/kpi_dashboard")
+    axios.get(`http://127.0.0.1:8000/dashboard/kpi_dashboard/${email}`)
       .then(res => setKpiDashboard(res.data));
 
-    axios.get("http://127.0.0.1:8000/dashboard/growth")
+    axios.get(`http://127.0.0.1:8000/dashboard/growth/${email}`)
       .then(res => setGrowthData(res.data));
 
-    axios.get("http://127.0.0.1:8000/dashboard/revenue")
+    axios.get(`http://127.0.0.1:8000/dashboard/revenue/${email}`)
       .then(res => setRevenueData(res.data));
 
-    axios.get("http://127.0.0.1:8000/dashboard/PerformanceSummary")
+    axios.get(`http://127.0.0.1:8000/dashboard/PerformanceSummary/${email}`)
       .then(res => setPerformanceSummary(res.data));
 
-    axios.get("http://127.0.0.1:8000/dashboard/StageDistribution")
+    axios.get(`http://127.0.0.1:8000/dashboard/StageDistribution/${email}`)
       .then(res => setStageDistribution(res.data));
 
-  }, []);
+  }, [email]);
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
       {/* HEADER */}

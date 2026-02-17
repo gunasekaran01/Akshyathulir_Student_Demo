@@ -7,8 +7,9 @@ client = MongoClient("mongodb://localhost:27017")
 db = client["expertDB"]
 experts = db["experts"]
 counters = db["counters"]
-# ---------------- DASHBOARD COLLECTION ----------------
 dashboard_collection = db["dashboard_data"]
+mentees_collection = db["mentees_data"]
+revenue_collection = db["revenue_data"]
 print("Connected to MongoDB")
 # ---------------- FOLDERS ----------------
 PROFILE_DIR = "uploads/profiles"

@@ -12,36 +12,36 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 
 # ---------------- INSERT / UPDATE DASHBOARD ----------------
-@router.post("/save")
-def save_dashboard(data: dict):
-    return save_dashboard_data_controller(data)
+@router.post("/save/{email}")
+def save_dashboard(email: str, data: dict):
+    return save_dashboard_data_controller(email, data)
 
 
 # ---------------- GET SUMMARY ----------------
-@router.get("/kpi_dashboard")
-def get_kpi_dashboard():
-    return get_dashboard_kpi_dashboard_controller()
+@router.get("/kpi_dashboard/{email}")
+def get_kpi_dashboard(email: str):
+    return get_dashboard_kpi_dashboard_controller(email)
 
 
 # ---------------- GET GROWTH ----------------
-@router.get("/growth")
-def get_growth():
-    return get_growth_trend_controller()
+@router.get("/growth/{email}")
+def get_growth(email: str):
+    return get_growth_trend_controller(email)
 
 
 # ---------------- GET REVENUE ----------------
-@router.get("/revenue")
-def get_revenue():
-    return get_revenue_trend_controller()
+@router.get("/revenue/{email}")
+def get_revenue(email: str):
+    return get_revenue_trend_controller(email)
 
 
 # ---------------- GET STARTUPS ----------------
-@router.get("/PerformanceSummary")
-def get_PerformanceSummary():
-    return get_PerformanceSummary_controller()
+@router.get("/PerformanceSummary/{email}")
+def get_PerformanceSummary(email: str):
+    return get_PerformanceSummary_controller(email)
 
 
 # ---------------- GET CERT DISTRIBUTION ----------------
-@router.get("/StageDistribution")
-def get_StageDistribution():
-    return get_StageDistribution_controller()
+@router.get("/StageDistribution/{email}")
+def get_StageDistribution(email: str):
+    return get_StageDistribution_controller(email)

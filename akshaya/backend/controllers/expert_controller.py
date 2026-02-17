@@ -62,7 +62,7 @@ async def create_expert_controller(
 
 # ======================== READ ============================
 def get_expert_by_email_controller(email: str):
-    expert = experts.find_one({"email": email})
+    expert = experts.find_one({"email": email })
 
     if not expert:
         return {"error": "Expert not found"}

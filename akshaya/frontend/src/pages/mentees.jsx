@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -38,120 +40,38 @@ const COLORS = {
   warning: "#FB8C00",
   danger: "#E53935",
   head: "#25544a",
-  ehead: "#1f4d3a", 
+  ehead: "#1f4d3a",
 };
-
-/* ------------------ DATA ------------------ */
-const kpis = [
-  { label: "Total Startups", value: 18, icon: <BusinessIcon /> },
-  { label: "Total Mentorships", value: 16, icon: <GroupsIcon /> },
-  { label: "Avg Growth", value: "12%", icon: <TrendingUpIcon /> },
-  { label: "On Track", value: 15, icon: <CheckCircleIcon /> },
-  { label: "At Risk", value: 11, icon: <WarningAmberIcon /> },
-  { label: "Sessions / Month", value: 12, icon: <EventAvailableIcon /> },
-];
-
-const progressData = [
-  { month: "Mar", progress: 25 },
-  { month: "May", progress: 38 },
-  { month: "Jun", progress: 48 },
-  { month: "Aug", progress: 55 },
-  { month: "Oct", progress: 65 },
-  { month: "Nov", progress: 75 },
-  { month: "Dec", progress: 88 },
-  { month: "Jan", progress: 75 },
-];
-
-const healthData = [
-  { name: "On Track", value: 15 },
-  { name: "Needs Attention", value: 2 },
-  { name: "At Risk", value: 11 },
-];
-
-const startups = [
-  {
-    name: "AgroTech AI",
-    founder: "Arun Kumar",
-    stage: "MVP",
-    progress: 72,
-    growth: "+15%",
-    status: "On Track",
-  },
-  {
-    name: "FinSmart",
-    founder: "Priya S",
-    stage: "Ideation",
-    progress: 38,
-    growth: "+8%",
-    status: "Needs Attention",
-  },
-  {
-    name: "HealthPulse",
-    founder: "Rahul Mehta",
-    stage: "Traction",
-    progress: 81,
-    growth: "+18%",
-    status: "On Track",
-  },
-  {
-    name: "GreenLogix",
-    founder: "Sneha Iyer",
-    stage: "Scaling",
-    progress: 64,
-    growth: "+22%",
-    status: "On Track",
-  },
-  {
-    name: "EduNext",
-    founder: "Karthik R",
-    stage: "Early Revenue",
-    progress: 56,
-    growth: "+12%",
-    status: "Needs Attention",
-  },
-];
-
-const actions = [
-  {
-    startup: "AgroTech AI",
-    task: "Investor pitch refinement",
-    owner: "Founder",
-    due: "20 Jan",
-    impact: "High",
-  },
-  {
-    startup: "FinSmart",
-    task: "Finalize MVP feature list and product roadmap",
-    owner: "Expert",
-    due: "25 Jan",
-    impact: "Medium",
-  },
-  {
-    startup: "HealthPulse",
-    task: "Conduct user validation interviews with 20 target customers",
-    owner: "Founder",
-    due: "30 Jan",
-    impact: "High",
-  },
-  {
-    startup: "EduNext",
-    task: "Define monetization strategy and pricing model",
-    owner: "Expert",
-    due: "02 Feb",
-    impact: "Medium",
-  },
-  {
-    startup: "GreenLogix",
-    task: "Prepare compliance and legal documentation for pilot launch",
-    owner: "Founder",
-    due: "05 Feb",
-    impact: "High",
-  },
-];
-
-
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertDashboard() {
+  const email = localStorage.getItem("expertEmail");
+
+  const [kpi, setKpi] = useState({});
+  const [progressData, setProgressData] = useState([]);
+  const [healthData, setHealthData] = useState([]);
+  const [startups, setStartups] = useState([]);
+  const [actions, setActions] = useState([]);
+  const [sessionGrowth, setSessionGrowth] = useState([]);
+  useEffect(() => {
+
+    axios.get(`http://127.0.0.1:8000/mentees/kpi/${email}`)
+      .then(res => setKpi(res.data));
+
+    axios.get(`http://127.0.0.1:8000/mentees/progress/${email}`)
+      .then(res => setProgressData(res.data));
+
+    axios.get(`http://127.0.0.1:8000/mentees/health/${email}`)
+      .then(res => setHealthData(res.data));
+
+    axios.get(`http://127.0.0.1:8000/mentees/startups/${email}`)
+      .then(res => setStartups(res.data));
+
+    axios.get(`http://127.0.0.1:8000/mentees/actions/${email}`)
+      .then(res => setActions(res.data));
+    axios.get(`http://127.0.0.1:8000/mentees/sessions/${email}`)
+      .then(res => setSessionGrowth(res.data));
+
+  }, [email]);
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
       {/* 🌱 HEADER */}
@@ -174,7 +94,14 @@ export default function ExpertDashboard() {
 
       {/* 📊 KPI CARDS */}
       <Grid container spacing={3} mb={4}>
-        {kpis.map((k, i) => (
+        {[
+          { label: "Total Startups", value: kpi.totalStartups || 0, icon: <BusinessIcon /> },
+          { label: "Total Mentorships", value: kpi.totalMentorships || 0, icon: <GroupsIcon /> },
+          { label: "Avg Growth", value: kpi.avgGrowth || "0%", icon: <TrendingUpIcon /> },
+          { label: "On Track", value: kpi.onTrack || 0, icon: <CheckCircleIcon /> },
+          { label: "At Risk", value: kpi.atRisk || 0, icon: <WarningAmberIcon /> },
+          { label: "Sessions / Month", value: kpi.sessionsPerMonth || 0, icon: <EventAvailableIcon /> },
+        ].map((kpi, i) => (
           <Grid itemxs={12} sm={6} md={2.4} key={i}>
             <Card
               sx={{
@@ -192,17 +119,17 @@ export default function ExpertDashboard() {
               <CardContent>
                 <Stack direction="row" spacing={4} alignItems="center">
                   <Avatar sx={{ bgcolor: COLORS.light, color: COLORS.main }}>
-                    {k.icon}
+                    {kpi.icon}
                   </Avatar>
                   <Box>
                     <Typography variant="body2" color="text.secondary">
-                      {k.label}
+                      {kpi.label}
                     </Typography>
                     <Typography
                       variant="h6"
                       fontWeight="bold"
                       sx={{ color: COLORS.main }}>
-                      {k.value}
+                      {kpi.value}
                     </Typography>
                   </Box>
                 </Stack>
@@ -358,10 +285,10 @@ export default function ExpertDashboard() {
                 Sessions Growth
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={progressData}>
+                <BarChart data={sessionGrowth}>
                   <XAxis dataKey="month" />
                   <Tooltip />
-                  <Bar dataKey="progress" fill={COLORS.mint} radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="sessions" fill={COLORS.mint} radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

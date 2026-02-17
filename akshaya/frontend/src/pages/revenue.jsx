@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -39,42 +41,29 @@ const COLORS = {
   head: "#25544a",
   ehead: "#1f4d3a",
 };
-
-/* ------------------ KPI DATA ------------------ */
-const revenueKpis = [
-  { label: "Total Revenue", value: "₹4,80,000", icon: <CurrencyRupeeIcon /> },
-  { label: "This Month", value: "₹72,000", icon: <AccountBalanceWalletIcon /> },
-  { label: "Avg / Session", value: "₹3,000", icon: <EventIcon /> },
-  { label: "Revenue Growth", value: "+18%", icon: <TrendingUpIcon /> },
-  { label: "Total Sessions", value: "160", icon: <GroupsIcon /> },
-  { label: "Pending Payout", value: "₹38,000", icon: <AccountBalanceIcon /> },
-];
-
-/* ------------------ CHART DATA ------------------ */
-const revenueTrend = [
-  { month: "Aug", revenue: 35000 },
-  { month: "Sep", revenue: 42000 },
-  { month: "Oct", revenue: 51000 },
-  { month: "Nov", revenue: 60000 },
-  { month: "Dec", revenue: 68000 },
-  { month: "Jan", revenue: 72000 },
-];
-
-const revenueSources = [
-  { name: "Mentorship Sessions", value: 55 },
-  { name: "Startup Retainers", value: 30 },
-  { name: "Workshops", value: 15 },
-];
-
-const transactions = [
-  { startup: "AgroTech AI", amount: "₹15,000", date: "10 Jan", status: "Paid" },
-  { startup: "HealthPulse", amount: "₹18,000", date: "14 Jan", status: "Pending" },
-  { startup: "FinSmart", amount: "₹12,000", date: "18 Jan", status: "Paid" },
-  { startup: "GreenLogix", amount: "₹20,000", date: "20 Jan", status: "Pending" },
-];
-
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertRevenue() {
+  const email = localStorage.getItem("expertEmail");
+
+  const [kpi, setKpi] = useState({});
+  const [revenueTrend, setRevenueTrend] = useState([]);
+  const [revenueSources, setRevenueSources] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  useEffect(() => {
+
+    axios.get(`http://127.0.0.1:8000/revenue/kpi/${email}`)
+      .then(res => setKpi(res.data));
+
+    axios.get(`http://127.0.0.1:8000/revenue/trend/${email}`)
+      .then(res => setRevenueTrend(res.data));
+
+    axios.get(`http://127.0.0.1:8000/revenue/sources/${email}`)
+      .then(res => setRevenueSources(res.data));
+
+    axios.get(`http://127.0.0.1:8000/revenue/transactions/${email}`)
+      .then(res => setTransactions(res.data));
+
+  }, [email]);
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
 
@@ -98,7 +87,14 @@ export default function ExpertRevenue() {
 
       {/* 📊 KPI CARDS */}
       <Grid container spacing={3} mb={4}>
-        {revenueKpis.map((k, i) => (
+        {[
+          { label: "Total Revenue", value: `₹${kpi.totalRevenue || 0}`, icon: <CurrencyRupeeIcon /> },
+          { label: "This Month", value: `₹${kpi.thisMonth || 0}`, icon: <AccountBalanceWalletIcon /> },
+          { label: "Avg / Session", value: `₹${kpi.avgPerSession || 0}`, icon: <EventIcon /> },
+          { label: "Revenue Growth", value: `+${kpi.revenueGrowth || 0}%`, icon: <TrendingUpIcon /> },
+          { label: "Total Sessions", value: kpi.totalSessions || 0, icon: <GroupsIcon /> },
+          { label: "Pending Payout", value: `₹${kpi.pendingPayout || 0}`, icon: <AccountBalanceIcon /> },
+        ].map((kpi, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
             <Card
               sx={{
@@ -116,16 +112,16 @@ export default function ExpertRevenue() {
               <CardContent>
                 <Stack direction="row" spacing={4} alignItems="center">
                   <Avatar sx={{ bgcolor: COLORS.light, color: COLORS.main }}>
-                    {k.icon}
+                    {kpi.icon}
                   </Avatar>
                   <Box>
                     <Typography variant="body2" color="text.secondary">
-                      {k.label}
+                      {kpi.label}
                     </Typography>
                     <Typography variant="h6"
                       fontWeight="bold"
                       sx={{ color: COLORS.main }} >
-                      {k.value}
+                      {kpi.value}
                     </Typography>
                   </Box>
                 </Stack>

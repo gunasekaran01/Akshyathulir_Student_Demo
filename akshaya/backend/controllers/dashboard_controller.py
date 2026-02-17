@@ -1,25 +1,28 @@
 from database import dashboard_collection
 
 
-# ================= INSERT OR UPDATE DASHBOARD =================
-def save_dashboard_data_controller(data: dict):
+# ================= SAVE DASHBOARD =================
+def save_dashboard_data_controller(email: str, data: dict):
+
+    data["email"] = email
 
     dashboard_collection.update_one(
-        {},                 # single dashboard document
+        {"email": email},
         {"$set": data},
         upsert=True
     )
 
     return {
         "status": "success",
-        "message": "Dashboard data saved successfully"
+        "message": "Dashboard saved successfully",
+        "email": email
     }
 
 
-# ================= FETCH SUMMARY =================
-def get_dashboard_kpi_dashboard_controller():
+# ================= SUMMARY =================
+def get_dashboard_kpi_dashboard_controller(email: str):
 
-    data = dashboard_collection.find_one()
+    data = dashboard_collection.find_one({"email": email})
 
     if not data:
         return {}
@@ -27,10 +30,10 @@ def get_dashboard_kpi_dashboard_controller():
     return data.get("kpi_dashboard", {})
 
 
-# ================= FETCH GROWTH =================
-def get_growth_trend_controller():
+# ================= GROWTH =================
+def get_growth_trend_controller(email: str):
 
-    data = dashboard_collection.find_one()
+    data = dashboard_collection.find_one({"email": email})
 
     if not data:
         return []
@@ -38,10 +41,10 @@ def get_growth_trend_controller():
     return data.get("growth", [])
 
 
-# ================= FETCH REVENUE =================
-def get_revenue_trend_controller():
+# ================= REVENUE =================
+def get_revenue_trend_controller(email: str):
 
-    data = dashboard_collection.find_one()
+    data = dashboard_collection.find_one({"email": email})
 
     if not data:
         return []
@@ -49,10 +52,10 @@ def get_revenue_trend_controller():
     return data.get("revenue", [])
 
 
-# ================= FETCH PerformanceSummary =================
-def get_PerformanceSummary_controller():
+# ================= PERFORMANCE TABLE =================
+def get_PerformanceSummary_controller(email: str):
 
-    data = dashboard_collection.find_one()
+    data = dashboard_collection.find_one({"email": email})
 
     if not data:
         return []
@@ -60,10 +63,10 @@ def get_PerformanceSummary_controller():
     return data.get("PerformanceSummary", [])
 
 
-# ================= FETCH CERT DISTRIBUTION =================
-def get_StageDistribution_controller():
+# ================= STAGE DISTRIBUTION =================
+def get_StageDistribution_controller(email: str):
 
-    data = dashboard_collection.find_one()
+    data = dashboard_collection.find_one({"email": email})
 
     if not data:
         return []
