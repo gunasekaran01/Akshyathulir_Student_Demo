@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
   Grid,
   Card,
+  TextField,
   CardContent,
   Chip,
   Stack,
@@ -16,7 +17,12 @@ import {
   TableCell,
   TableBody,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
+import axios from "axios";
 
 import {
   EventAvailable,
@@ -25,7 +31,6 @@ import {
   CheckCircle,
 
 } from "@mui/icons-material";
-
 import {
   BarChart,
   Bar,
@@ -44,6 +49,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 /* ------------------ THEME COLORS ------------------ */
 const COLORS = {
@@ -53,151 +59,197 @@ const COLORS = {
   mint: "#66BB6A",
   warning: "#FB8C00",
   danger: "#E53935",
-  head:"#25544a",
-  ehead:"#1f4d3a",
+  head: "#25544a",
+  ehead: "#1f4d3a",
 };
-
-/* ------------------ KPI DATA ------------------ */
-const availabilityKpis = [
-  { label: "Available Days / Week", value: "5 Days", icon: <EventAvailable /> },
-  { label: "Hours / Day", value: "4 – 6 hrs", icon: <AccessTime /> },
-  { label: "Sessions / Week", value: 8, icon: <CheckCircle /> },
-  { label: "Preferred Mode", value: "Online", icon: <LaptopMac /> },
-  { label: "Upcoming Sessions", value: 3, icon: <EventAvailable /> },
-
-];
-/* ------------------ CALENDAR AVAILABILITY ------------------ */
-// 🟢 Dates where expert HAS mentoring sessions
-const sessionDates = [
-  // January 2026
-  "2026-01-20",
-  "2026-01-25",
-  "2026-01-27",
-
-  // February 2026
-  "2026-02-03",
-  "2026-02-10",
-  "2026-02-18",
-
-  // March 2026
-  "2026-03-05",
-  "2026-03-12",
-  "2026-03-26",
-
-  // April 2026
-  "2026-04-08",
-  "2026-04-22",
-];
-
-// 🔴 Dates where expert is on LEAVE / BLOCKED
-const blockedDates = [
-  // January 2026
-  "2026-01-22",
-  "2026-01-29",
-
-  // February 2026
-  "2026-02-14",
-  "2026-02-21",
-
-  // March 2026
-  "2026-03-08",
-  "2026-03-19",
-
-  // April 2026
-  "2026-04-01",
-  "2026-04-15",
-
-  // May 2026
-  "2026-05-06",
-  "2026-05-20",
-];
-
-
-function CustomDay(props) {
-  const { day, outsideCurrentMonth, ...other } = props;
-  const dateStr = day.format("YYYY-MM-DD");
-
-  const hasSession = sessionDates.includes(dateStr);
-  const isBlocked = blockedDates.includes(dateStr);
-
-  return (
-    <PickersDay
-      {...other}
-      day={day}
-      outsideCurrentMonth={outsideCurrentMonth}
-      disableRipple
-      sx={{
-        borderRadius: "50%",
-        fontSize: "0.9rem",
-        cursor: "default",
-
-        /* 🟢 SESSION DAY */
-        ...(hasSession && {
-          backgroundColor: COLORS.main,
-          color: "#fff",
-          fontWeight: "bold",
-        }),
-
-        /* 🔴 LEAVE / BLOCKED */
-        ...(isBlocked && {
-          backgroundColor: COLORS.danger,
-          color: "#fff",
-        }),
-        "&:hover": {
-          backgroundColor: hasSession
-            ? COLORS.main
-            : isBlocked
-              ? COLORS.danger
-              : "#eee",
-        },
-      }}
-    />
-  );
-}
-/* ------------------ WEEKLY AVAILABILITY ------------------ */
-const weeklyAvailability = [
-  { day: "Monday", time: "10:00 AM – 4:00 PM", mode: "Online", status: "Available" },
-  { day: "Tuesday", time: "2:00 PM – 6:00 PM", mode: "Online", status: "Limited" },
-  { day: "Wednesday", time: "10:00 AM – 4:00 PM", mode: "Online", status: "Available" },
-  { day: "Thursday", time: "11:00 AM – 3:00 PM", mode: "Online", status: "Available" },
-  { day: "Friday", time: "10:00 AM – 1:00 PM", mode: "Online", status: "Available" },
-  { day: "Saturday", time: "2:00 PM – 6:00 PM", mode: "Online", status: "Limited" },
-];
-
-/* ------------------ CHART DATA ------------------ */
-const sessionLoad = [
-  { day: "Mon", sessions: 4 },
-  { day: "Tue", sessions: 2 },
-  { day: "Wed", sessions: 3 },
-  { day: "Thu", sessions: 2 },
-  { day: "Fri", sessions: 1 },
-];
-/* ------------------ AVAILABILITY PIE DATA ------------------ */
-const availabilityStatusData = [
-  { name: "Available", value: 3 },
-  { name: "Limited", value: 1 },
-  { name: "Unavailable", value: 1 },
-];
-
-/* ------------------ MONTHLY SESSION TREND ------------------ */
-const monthlySessions = [
-  { month: "Aug", sessions: 6 },
-  { month: "Sep", sessions: 8 },
-  { month: "Oct", sessions: 10 },
-  { month: "Nov", sessions: 9 },
-  { month: "Dec", sessions: 12 },
-  { month: "Jan", sessions: 14 },
-];
-
-/* ------------------ UPCOMING SLOTS ------------------ */
-const upcomingSlots = [
-  { date: "20 Jan", day: "Monday", time: "11:00 AM", mode: "Online" },
-  { date: "22 Jan", day: "Wednesday", time: "2:00 PM", mode: "Online" },
-  { date: "24 Jan", day: "Friday", time: "10:30 AM", mode: "Online" },
-];
-
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertAvailability() {
+  const [openAvailability, setOpenAvailability] = useState(false);
+  const [openBlock, setOpenBlock] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [availabilityKpis, setAvailabilityKpis] = useState({});
+  const [weeklyAvailability, setWeeklyAvailability] = useState([]);
+  const [sessionDates, setSessionDates] = useState([]);
+  const [blockedDates, setBlockedDates] = useState([]);
+  const [sessionLoad, setSessionLoad] = useState([]);
+  const [availabilityStatusData, setAvailabilityStatusData] = useState([]);
+  const [monthlySessions, setMonthlySessions] = useState([]);
+  const [upcomingSlots, setUpcomingSlots] = useState([]);
+  const [sessionsCompleted, setSessionsCompleted] = useState([]);
+  const email = localStorage.getItem("expertEmail");
+  const [formEmail, setFormEmail] = useState(email);
+  const completedDates = sessionsCompleted.map(s =>
+    dayjs(s.date).format("YYYY-MM-DD")
+  );
+
+  const filteredSessionDates = sessionDates.filter(
+    d => !completedDates.includes(d)
+  );
+
+  function CustomDay(props) {
+    const { day, outsideCurrentMonth, ...other } = props;
+    const dateStr = day.format("YYYY-MM-DD");
+
+    const isBlocked = blockedDates.includes(dateStr);
+    const hasSession = !isBlocked && filteredSessionDates.includes(dateStr);
+
+    return (
+      <PickersDay
+        {...other}
+        day={day}
+        outsideCurrentMonth={outsideCurrentMonth}
+        disableRipple
+        sx={{
+          borderRadius: "50%",
+          fontSize: "0.9rem",
+          cursor: "default",
+
+          /* 🟢 SESSION DAY */
+          ...(hasSession && {
+            backgroundColor: COLORS.main,
+            color: "#fff",
+            fontWeight: "bold",
+          }),
+
+          /* 🔴 LEAVE / BLOCKED */
+          ...(isBlocked && {
+            backgroundColor: COLORS.danger,
+            color: "#fff",
+          }),
+          "&:hover": {
+            backgroundColor: hasSession
+              ? COLORS.main
+              : isBlocked
+                ? COLORS.danger
+                : "#eee",
+          },
+        }}
+      />
+    );
+  }
+  <StaticDatePicker
+    value={selectedDate}
+    onChange={(newValue) => setSelectedDate(newValue)}
+    disablePast
+    slots={{
+      actionBar: () => null,
+      day: CustomDay,
+    }}
+  />
+  const handleAddSession = async () => {
+
+    if (!selectedDate) {
+      alert("Please select date");
+      return;
+    }
+
+    try {
+
+      await axios.put(
+        "http://localhost:8000/availability/addSession",
+        {
+          email: formEmail,
+          date: selectedDate.format("YYYY-MM-DD")
+        }
+      );
+
+      alert("Availability updated");
+
+      const newDate = selectedDate.format("YYYY-MM-DD");
+
+      setSessionDates(prev => [...new Set([...prev, newDate])]);
+
+      setBlockedDates(prev =>
+        prev.filter(d => d !== newDate)
+      );
+
+      setOpenAvailability(false);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleBlockDate = async () => {
+
+    if (!selectedDate) {
+      alert("Please select date");
+      return;
+    }
+
+    try {
+
+      await axios.put(
+        "http://localhost:8000/availability/blockDate",
+        {
+          email: formEmail,
+          date: selectedDate.format("YYYY-MM-DD")
+        }
+      );
+
+      alert("Date blocked");
+      const newDate = selectedDate.format("YYYY-MM-DD");
+      setBlockedDates(prev => [...new Set([...prev, newDate])]);
+
+      setSessionDates(prev =>
+        prev.filter(d => d !== newDate)
+      );
+
+      setOpenBlock(false);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const deleteDate = async (date) => {
+
+    try {
+
+      await axios.delete(
+        "http://localhost:8000/availability/deleteDate",
+        {
+          data: {
+            email: formEmail,
+            date: date
+          }
+        }
+      );
+
+      setSessionDates(prev => prev.filter(d => d !== date));
+      setBlockedDates(prev => prev.filter(d => d !== date));
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
+
+    axios.get(`http://localhost:8000/availability/kpi/${email}`)
+      .then(res => setAvailabilityKpis(res.data));
+
+    axios.get(`http://localhost:8000/availability/weeklyAvailability/${email}`)
+      .then(res => setWeeklyAvailability(res.data));
+
+    axios.get(`http://localhost:8000/availability/sessionDates/${email}`)
+      .then(res => setSessionDates(res.data));
+
+    axios.get(`http://localhost:8000/availability/blockedDates/${email}`)
+      .then(res => setBlockedDates(res.data));
+
+    axios.get(`http://localhost:8000/availability/sessionLoad/${email}`)
+      .then(res => setSessionLoad(res.data));
+
+    axios.get(`http://localhost:8000/availability/availabilityStatus/${email}`)
+      .then(res => setAvailabilityStatusData(res.data));
+
+    axios.get(`http://localhost:8000/availability/monthlySessions/${email}`)
+      .then(res => setMonthlySessions(res.data));
+
+    axios.get(`http://localhost:8000/availability/upcomingSlots/${email}`)
+      .then(res => setUpcomingSlots(res.data));
+    axios.get(`http://localhost:8000/availability/sessionsCompleted/${email}`)
+      .then(res => setSessionsCompleted(res.data));
+
+  }, [email]);
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
 
@@ -221,7 +273,13 @@ export default function ExpertAvailability() {
 
       {/* 📊 KPI CARDS */}
       <Grid container spacing={3} mb={4}>
-        {availabilityKpis.map((k, i) => (
+        {[
+          { label: "Available Days / Week", value: availabilityKpis.availableDays || 0, icon: <EventAvailable /> },
+          { label: "Hours / Day", value: availabilityKpis.hoursPerDay || 0, icon: <AccessTime /> },
+          { label: "Sessions / Week", value: availabilityKpis.sessionsPerWeek || 0, icon: <CheckCircle /> },
+          { label: "Preferred Mode", value: availabilityKpis.preferredMode || "Online", icon: <LaptopMac /> },
+          { label: "Upcoming Sessions", value: availabilityKpis.upcomingSessions || 0, icon: <EventAvailable /> },
+        ].map((k, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
             <Card
               sx={{
@@ -311,15 +369,17 @@ export default function ExpertAvailability() {
       </Typography>
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 4,width: 420,
-            height: 475}}>
+          <Card sx={{
+            borderRadius: 4, width: 420,
+            height: 475
+          }}>
             <CardContent>
               <Typography fontWeight="bold" mb={2}>
                 Monthly Availability View
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <StaticDatePicker
-                  defaultValue={dayjs("2026-01-01")}
+                  defaultValue={dayjs()}
                   displayStaticWrapperAs="desktop"
                   disableHighlightToday
                   slots={{
@@ -347,8 +407,10 @@ export default function ExpertAvailability() {
           <Stack spacing={3}>
 
             {/* 🟢 SESSION LIST */}
-            <Card sx={{ borderRadius: 4,width: 450,
-            height: 475}}>
+            <Card sx={{
+              borderRadius: 4, width: 450,
+              height: 475
+            }}>
               <CardContent
                 sx={{
                   height: "100%",
@@ -358,9 +420,13 @@ export default function ExpertAvailability() {
                 <Typography fontWeight="bold" mb={2}>
                   Upcoming Session Dates
                 </Typography>
-
+                {filteredSessionDates.length === 0 ? (
+                  <Typography color="text.secondary">
+                    No upcoming sessions
+                  </Typography>
+                ) : (
                 <Stack spacing={1}>
-                  {sessionDates.map((date, i) => (
+                  {filteredSessionDates.map((date, i) => (
                     <Box
                       key={i}
                       sx={{
@@ -368,6 +434,9 @@ export default function ExpertAvailability() {
                         borderRadius: 2,
                         bgcolor: COLORS.light,
                         borderLeft: `4px solid ${COLORS.main}`,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
                       }}
                     >
                       <Typography fontWeight="bold">
@@ -376,9 +445,17 @@ export default function ExpertAvailability() {
                       <Typography variant="caption" color="text.secondary">
                         Mentoring Session
                       </Typography>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => deleteDate(date)}
+                      >
+                        Delete
+                      </Button>
                     </Box>
                   ))}
                 </Stack>
+                )}
               </CardContent>
             </Card>
           </Stack>
@@ -386,8 +463,10 @@ export default function ExpertAvailability() {
         <Grid item xs={12} md={6}>
           <Stack spacing={3}>
             {/* 🔴 LEAVE LIST */}
-            <Card sx={{ borderRadius: 4,width: 450,
-            height: 475 }}>
+            <Card sx={{
+              borderRadius: 4, width: 450,
+              height: 475
+            }}>
               <CardContent
                 sx={{
                   height: "100%",
@@ -412,6 +491,9 @@ export default function ExpertAvailability() {
                           borderRadius: 2,
                           bgcolor: "#fdecea",
                           borderLeft: `4px solid ${COLORS.danger}`,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center"
                         }}
                       >
                         <Typography fontWeight="bold">
@@ -420,6 +502,13 @@ export default function ExpertAvailability() {
                         <Typography variant="caption" color="text.secondary">
                           Expert on Leave
                         </Typography>
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => deleteDate(date)}
+                        >
+                          Delete
+                        </Button>
                       </Box>
                     ))}
                   </Stack>
@@ -540,7 +629,49 @@ export default function ExpertAvailability() {
         </Grid>
 
       </Grid>
+      <Typography variant="h6" fontWeight="bold" mb={2}>
+        Sessions Completed
+      </Typography>
 
+      <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
+        <Table>
+          <TableHead
+            sx={{
+              background: COLORS.ehead,
+              "& .MuiTableCell-head": {
+                color: "#fff",
+                fontWeight: "bold",
+              },
+            }}
+          >
+            <TableRow>
+              <TableCell>Startup</TableCell>
+              <TableCell>Founder</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Mode</TableCell>
+              <TableCell>Duration</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {sessionsCompleted.map((s, i) => (
+              <TableRow key={i}>
+                <TableCell>{s.startup}</TableCell>
+                <TableCell>{s.founder}</TableCell>
+                <TableCell>{s.date}</TableCell>
+                <TableCell>{s.time}</TableCell>
+                <TableCell>{s.mode}</TableCell>
+                <TableCell>{s.duration}</TableCell>
+                <TableCell>
+                  <Chip label={s.status} color="success" size="small" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
       {/* 📋 UPCOMING SLOTS */}
       <Typography variant="h6" fontWeight="bold" mb={2}>
         Upcoming Available Slots
@@ -595,14 +726,106 @@ export default function ExpertAvailability() {
           Help startups plan mentoring sessions efficiently
         </Typography>
         <Stack direction="row" spacing={2} justifyContent="center">
-          <Button variant="outlined" color="inherit">
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => setOpenAvailability(true)}
+          >
             Update Availability
           </Button>
-          <Button variant="outlined" color="inherit">
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => setOpenBlock(true)}
+          >
             Block Time
           </Button>
         </Stack>
+        <Dialog open={openAvailability} onClose={() => setOpenAvailability(false)}>
+          <DialogTitle>Add Availability</DialogTitle>
+
+          <DialogContent>
+
+            <TextField
+              fullWidth
+              label="Email"
+              value={formEmail}
+              margin="normal"
+              onChange={(e) => setFormEmail(e.target.value)}
+            />
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Select Session Date"
+                value={selectedDate}
+                disablePast
+                onChange={(newValue) => setSelectedDate(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+
+          </DialogContent>
+
+          <DialogActions>
+
+            <Button onClick={() => setOpenAvailability(false)}>
+              Cancel
+            </Button>
+
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleAddSession}
+            >
+              Save
+            </Button>
+
+          </DialogActions>
+        </Dialog>
+        <Dialog open={openBlock} onClose={() => setOpenBlock(false)}>
+          <DialogTitle>Block Date</DialogTitle>
+
+          <DialogContent>
+
+            <TextField
+              fullWidth
+              label="Email"
+              value={formEmail}
+              margin="normal"
+              onChange={(e) => setFormEmail(e.target.value)}
+            />
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Select Block Date"
+                value={selectedDate}
+                disablePast
+                onChange={(newValue) => setSelectedDate(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+          </DialogContent>
+
+          <DialogActions>
+
+            <Button onClick={() => setOpenBlock(false)}>
+              Cancel
+            </Button>
+
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleBlockDate}
+            >
+              Block Date
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
-    </Box >
+    </Box>
   );
 }

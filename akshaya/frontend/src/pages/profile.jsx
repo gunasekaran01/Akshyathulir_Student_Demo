@@ -16,7 +16,7 @@ import {
     Autocomplete,
 } from "@mui/material";
 import Cropper from "react-easy-crop";
-
+import axios from "axios";
 /*=====style======*/
 const sectionHeaderStyle = {
     backgroundColor: "#1f4d3a",
@@ -781,9 +781,10 @@ export default function ExpertRegistrationForm() {
         const email = localStorage.getItem("expertEmail");
 
         if (email) {
-            fetch(`http://localhost:8000/expert/by-email/${encodeURIComponent(email)}`)
-                .then(res => res.json())
-                .then(data => {
+            axios
+                .get(`http://localhost:8000/expert/by-email/${encodeURIComponent(email)}`)
+                .then((res) => {
+                    const data = res.data;
                     if (!data.error) {
                         setExpert({ ...initialExpertState, ...data });
                         // Autocomplete sync
@@ -815,11 +816,10 @@ export default function ExpertRegistrationForm() {
         if (!expert.email) return;
         if (!window.confirm("Delete this expert?")) return;
 
-        const res = await fetch(
-            `http://localhost:8000/expert/by-email/${expert.email}`,
-            { method: "DELETE" }
+        const res = await axios.delete(
+            `http://localhost:8000/expert/by-email/${expert.email}`
         );
-        if (res.ok) {
+        if (res.status === 200) {
             alert("Deleted successfully");
             handleReset();
             setIsEditMode(false);
@@ -905,17 +905,22 @@ export default function ExpertRegistrationForm() {
             });
 
         try {
-            const res = await fetch(
-                isEditMode
-                    ? `http://localhost:8000/expert/by-email/${expert.email}`
-                    : "http://localhost:8000/expert",
-                {
-                    method: isEditMode ? "PUT" : "POST",
-                    body: formData,
-                }
-            );
-            const data = await res.json();
-            if (!res.ok) {
+            let res;
+
+            if (isEditMode) {
+                res = await axios.put(
+                    `http://localhost:8000/expert/by-email/${expert.email}`,
+                    formData
+                );
+            } else {
+                res = await axios.post(
+                    "http://localhost:8000/expert",
+                    formData
+                );
+            }
+
+            const data = res.data;
+            if (res.status !== 200) {
                 alert("Registration failed");
                 return;
             }

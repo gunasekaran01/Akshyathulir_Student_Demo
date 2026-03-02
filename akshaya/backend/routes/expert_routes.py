@@ -8,8 +8,7 @@ from controllers.expert_controller import (
     get_expert_by_email_controller
 )
 
-router = APIRouter()
-
+router = APIRouter( tags=["Expert profile"] )
 
 @router.post("/expert")
 async def register_expert(
