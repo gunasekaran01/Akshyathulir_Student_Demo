@@ -1,4 +1,5 @@
-import React from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -22,10 +23,13 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderIcon from "@mui/icons-material/Folder";
 import DescriptionIcon from "@mui/icons-material/Description";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import GroupsIcon from "@mui/icons-material/Groups";
-
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import SlideshowIcon from "@mui/icons-material/Slideshow";
+import IconButton from "@mui/material/IconButton";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
 /* ------------------ COLORS ------------------ */
 const COLORS = {
   dark: "#1B5E20",
@@ -38,82 +42,33 @@ const COLORS = {
   ehead: "#1f4d3a",
 };
 
-/* ------------------ KPI DATA ------------------ */
-const resourceKpis = [
-  { label: "Total Resources", value: 42, icon: <FolderIcon /> },
-  { label: "Documents", value: 18, icon: <DescriptionIcon /> },
-  { label: "Videos", value: 9, icon: <VideoLibraryIcon /> },
-  { label: "Downloads", value: 320, icon: <CloudDownloadIcon /> },
-  { label: "Free Resources", value: 36, icon: <CheckCircleIcon /> },
-  { label: "Assigned Startups", value: 12, icon: <GroupsIcon /> },
-];
-
-/* ------------------ RESOURCE DATA ------------------ */
-const resources = [
-  {
-    title: "Investor Pitch Deck Template",
-    type: "Document",
-    sharedWith: "AgroTech AI",
-    downloads: 48,
-  },
-  {
-    title: "Startup Financial Model (Excel)",
-    type: "Document",
-    sharedWith: "FinSmart",
-    downloads: 62,
-  },
-  {
-    title: "Go-To-Market Strategy Guide",
-    type: "Document",
-    sharedWith: "HealthPulse",
-    downloads: 35,
-  },
-  {
-    title: "Product-Market Fit Masterclass",
-    type: "Video",
-    sharedWith: "All Startups",
-    downloads: 120,
-  },
-  {
-    title: "Legal & Compliance Checklist",
-    type: "Document",
-    sharedWith: "GreenLogix",
-    downloads: 29,
-  },
-  {
-    title: "Product-Market Fit Masterclass",
-    type: "Video",
-    sharedWith: "All Startups",
-    downloads: 120,
-  },
-  {
-    title: "Legal & Compliance Checklist",
-    type: "Document",
-    sharedWith: "GreenLogix",
-    downloads: 33,
-  },
-  {
-    title: "SaaS Growth Strategy Resource",
-    type: "Link",
-    sharedWith: "HealthPulse",
-    downloads: 57,
-  },
-];
 /* ------------------ COMPONENT ------------------ */
 export default function ExpertResources() {
-  /* ---------- STATE ---------- */
-  const [resourceForm, setResourceForm] = React.useState({
+  const email = localStorage.getItem("expertEmail");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [resourceForm, setResourceForm] = useState({
     title: "",
     type: "PDF",
     description: "",
     pricing: "FREE",
     price: "",
     discount: "",
+    link: ""
   });
-
-  const [selectedFile, setSelectedFile] = React.useState(null);
-  const [uploadedResources, setUploadedResources] = React.useState([]);
-
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedResources, setUploadedResources] = useState([]);
+  useEffect(() => {
+    if (!email) return;
+    axios
+      .get(`http://localhost:8000/resource/all/${email}`)
+      .then(res => setUploadedResources(res.data))
+      .catch(err => console.error(err));
+  }, [email]);
+  const filteredResources = uploadedResources.filter((r) =>
+    r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   /* ---------- HANDLERS ---------- */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -127,56 +82,154 @@ export default function ExpertResources() {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleUpload = () => {
-    if (!resourceForm.title || !selectedFile) {
-      alert("Please enter title and select a file");
+  const handleUpload = async () => {
+
+    if (!resourceForm.title || !resourceForm.description) {
+      alert("Please enter title and description");
       return;
     }
 
-    if (
-      resourceForm.pricing === "PAID" &&
-      !resourceForm.price
-    ) {
-      alert("Please enter price for paid resource");
+    // If not link, file is required
+    if (resourceForm.type !== "Link" && !selectedFile) {
+      alert("Please select a file");
       return;
     }
 
-    const price = Number(resourceForm.price || 0);
-    const discount = Number(resourceForm.discount || 0);
-    const finalPrice =
-      resourceForm.pricing === "PAID"
-        ? price - (price * discount) / 100
-        : 0;
+    let fileData = {};
 
-    const newResource = {
-      id: Date.now(),
-      title: resourceForm.title,
-      type: resourceForm.type,
-      description: resourceForm.description,
-      pricing: resourceForm.pricing,
-      price,
-      discount,
-      finalPrice,
-      fileName: selectedFile.name,
-      size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-      uploadedAt: new Date().toLocaleString(),
-      fileURL: URL.createObjectURL(selectedFile),
-    };
+    try {
 
-    setUploadedResources((prev) => [...prev, newResource]);
+      // Upload file only if not Link
+      if (resourceForm.type !== "Link") {
 
-    // reset
-    setResourceForm({
-      title: "",
-      type: "PDF",
-      description: "",
-      pricing: "FREE",
-      price: "",
-      discount: "",
-    });
-    setSelectedFile(null);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadRes = await axios.post(
+          `http://localhost:8000/resource/upload/${email}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        fileData = uploadRes.data;
+      }
+      const fileSize = selectedFile
+        ? (selectedFile.size / 1024 / 1024).toFixed(2) + " MB"
+        : null;
+      const price = Number(resourceForm.price || 0);
+      const discount = Number(resourceForm.discount || 0);
+
+      const finalPrice =
+        resourceForm.pricing === "PAID"
+          ? price - (price * discount) / 100
+          : 0;
+
+      const newResource = {
+        id: Date.now(),
+        title: resourceForm.title,
+        type: resourceForm.type,
+        description: resourceForm.description,
+        pricing: resourceForm.pricing,
+        price,
+        discount,
+        finalPrice,
+        uploadedAt: new Date().toISOString().split("T")[0],
+         size: fileSize,
+        //  If link → store link
+        link: resourceForm.type === "Link" ? resourceForm.link : null,
+
+        //  If file → store backend file URL
+        fileName: fileData.fileName || null,
+        fileURL: fileData.fileURL || null
+      };
+
+      const updatedResources = [...uploadedResources, newResource];
+
+      await axios.post(
+        `http://localhost:8000/resource/save/${email}`,
+        { resources: updatedResources }
+      );
+
+      setUploadedResources(updatedResources);
+
+      // 🔥 RESET FORM
+      setResourceForm({
+        title: "",
+        type: "PDF",
+        description: "",
+        pricing: "FREE",
+        price: "",
+        discount: "",
+        link: ""
+      });
+
+      setSelectedFile(null);
+
+    } catch (error) {
+      console.error(error);
+    }
   };
+  const handleDelete = async (id) => {
+  const isConfirmed = window.confirm(
+    "Are you sure you want to delete this resource?"
+  );
 
+  if (!isConfirmed) return;
+
+  try {
+    await axios.delete(
+      `http://localhost:8000/resource/delete/${email}`,
+      { params: { resource_id: id } }
+    );
+
+    setUploadedResources(prev =>
+      prev.filter(r => r.id !== id)
+    );
+
+  } catch (error) {
+    console.error(error);
+    alert("Delete failed");
+  }
+};
+const handleDownload = async (r) => {
+  try {
+    if (r.pricing === "PAID") {
+      alert("This is a paid resource. Please purchase to download.");
+      return;
+    }
+
+    if (!r.fileURL) {
+      alert("File not available");
+      return;
+    }
+
+    const response = await axios.get(
+      r.fileURL + "?t=" + new Date().getTime(), // 🔥 Prevent cache
+      {
+        responseType: "blob",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      }
+    );
+
+    const blob = new Blob([response.data]);
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", r.fileName || "file");
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("Download error:", error);
+    alert("Download failed");
+  }
+};
   return (
     <Box sx={{ minHeight: "100vh", background: COLORS.light, p: 2 }}>
 
@@ -200,7 +253,38 @@ export default function ExpertResources() {
 
       {/* 📊 KPI CARDS */}
       <Grid container spacing={3} mb={4}>
-        {resourceKpis.map((k, i) => (
+        {[
+          {
+            label: "Total Resources",
+            value: uploadedResources.length,
+            icon: <FolderIcon />
+          },
+          {
+            label: "Documents",
+            value: uploadedResources.filter(r => r.type === "Document").length,
+            icon: <DescriptionIcon />
+          },
+          {
+            label: "Videos",
+            value: uploadedResources.filter(r => r.type === "Video").length,
+            icon: <VideoLibraryIcon />
+          },
+          {
+            label: "PPT",
+            value: uploadedResources.filter(r => r.type === "PPT").length,
+            icon: <SlideshowIcon />
+          },
+          {
+            label: "Free Resources",
+            value: uploadedResources.filter(r => r.pricing === "FREE").length,
+            icon: <CheckCircleIcon />
+          },
+          {
+            label: "Paid Resources",
+            value: uploadedResources.filter(r => r.pricing === "PAID").length,
+            icon: <CurrencyRupeeIcon />
+          }
+        ].map((k, i) => (
           <Grid item xs={12} sm={6} md={2.4} key={i}>
             <Card
               sx={{
@@ -228,44 +312,6 @@ export default function ExpertResources() {
                       {k.value}
                     </Typography>
                   </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* 📁 RESOURCE CARDS */}
-      <Typography variant="h6" fontWeight="bold" mb={2}>
-        Shared Resources
-      </Typography>
-      <Grid container spacing={3} mb={4}>
-        {resources.map((r, i) => (
-          <Grid item xs={12} md={4} key={i}>
-            <Card
-              sx={{
-                borderRadius: 4,
-                height: 180,
-                transition: "0.3s",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
-                },
-              }}
-            >
-              <CardContent>
-                <Typography fontWeight="bold">{r.title}</Typography>
-                <Typography color="text.secondary" variant="body2">
-                  Shared with: {r.sharedWith}
-                </Typography>
-
-                <Stack direction="row" spacing={1} mt={2}>
-                  <Chip label={r.type} color="success" size="small" />
-                  <Chip
-                    label={`${r.downloads} downloads`}
-                    size="small"
-                    variant="outlined"
-                  />
                 </Stack>
               </CardContent>
             </Card>
@@ -305,9 +351,11 @@ export default function ExpertResources() {
                 <MenuItem value="PDF">PDF</MenuItem>
                 <MenuItem value="Video">Video</MenuItem>
                 <MenuItem value="Image">Image</MenuItem>
+                <MenuItem value="PPT">PPT</MenuItem>
+                <MenuItem value="Link">Link</MenuItem>
+                <MenuItem value="Document">Document</MenuItem>
               </TextField>
             </Grid>
-
             {/* Description */}
             <Grid item xs={12} display="flex" alignItems="center">
               <TextField
@@ -363,78 +411,104 @@ export default function ExpertResources() {
             )}
           </Grid>
 
-          {/* File Upload */}
-          <Grid item xs={12} mt={2}>
-            <Card
-              variant="outlined"
-              sx={{
-                borderRadius: 3,
-                border: "2px dashed #A5D6A7",
-                p: 3,
-                background: "#F1F8E9",
-                transition: "0.3s",
-                "&:hover": {
-                  background: "#E8F5E9",
-                  borderColor: COLORS.main,
-                },
-              }}
-            >
-              <Stack spacing={2} alignItems="center" textAlign="center">
-                <Typography fontWeight="bold">
-                  {selectedFile ? selectedFile.name : "Upload Resource File"}
-                </Typography>
+          {/* FILE OR LINK SECTION */}
+          {resourceForm.type === "Link" ? (
+            <Grid item xs={12} mt={2}>
+              <TextField
+                fullWidth
+                label="Enter Resource URL"
+                name="link"
+                value={resourceForm.link}
+                onChange={handleInputChange}
+              />
 
-                <Typography variant="body2" color="text.secondary">
-                  Supported formats: PDF, Image, Video • Max size 50MB
-                </Typography>
-
-                <input
-                  type="file"
-                  accept=".pdf,image/*,video/*"
-                  hidden
-                  id="upload-file"
-                  onChange={handleFileChange}
+              <Box mt={2}>
+                <Chip
+                  label="Upload Resource"
+                  color="success"
+                  onClick={handleUpload}
                 />
+              </Box>
+            </Grid>
+          ) : (
+            <Grid item xs={12} mt={2}>
+              <Card
+                variant="outlined"
+                sx={{
+                  borderRadius: 3,
+                  border: "2px dashed #A5D6A7",
+                  p: 3,
+                  background: "#F1F8E9",
+                  transition: "0.3s",
+                  "&:hover": {
+                    background: "#E8F5E9",
+                    borderColor: COLORS.main,
+                  },
+                }}
+              >
+                <Stack spacing={2} alignItems="center" textAlign="center">
+                  <Typography fontWeight="bold">
+                    {selectedFile ? selectedFile.name : "Upload Resource File"}
+                  </Typography>
 
-                <label htmlFor="upload-file">
-                  <Chip
-                    icon={<CloudUploadIcon />}
-                    label="Select File"
-                    clickable
-                    color="success"
-                    sx={{
-                      px: 3,
-                      py: 1.5,
-                      fontWeight: "bold",
-                    }}
+                  <input
+                    type="file"
+                    hidden
+                    id="upload-file"
+                    onChange={handleFileChange}
                   />
-                </label>
 
-                {selectedFile && (
-                  <>
+                  <label htmlFor="upload-file">
+                    <Chip
+                      icon={<CloudUploadIcon />}
+                      label="Select File"
+                      clickable
+                      color="success"
+                    />
+                  </label>
 
+                  {selectedFile && (
                     <Chip
                       label="Upload Resource"
                       color="success"
                       onClick={handleUpload}
-                      sx={{ px: 4, py: 2, fontSize: "1rem" }}
                     />
-                  </>
-
-                )}
-
-              </Stack>
-            </Card>
-          </Grid>
+                  )}
+                </Stack>
+              </Card>
+            </Grid>
+          )}
         </CardContent>
       </Card>
       {/* 📤 UPLOAD RESOURCE */}
-      <Typography variant="h6" fontWeight="bold" mb={2}>
-        Uploaded Resources
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          flexWrap: "wrap",
+          gap: 2
+        }}
+      >
+        <Typography variant="h6" fontWeight="bold">
+          Uploaded Resources
+        </Typography>
 
+        <TextField
+          size="small"
+          placeholder="Search resources..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{
+            width: 250,
+            bgcolor: "#fff",
+            borderRadius: 2
+          }}
+        />
+      </Box>
       <Grid container spacing={3}>
-        {uploadedResources.map((r) => (
+        {filteredResources.map((r) => (
           <Grid item xs={12} md={4} key={r.id}>
             <Card sx={{ borderRadius: 4 }}>
               <CardContent>
@@ -449,12 +523,19 @@ export default function ExpertResources() {
                     size="small"
                   />
                 </Stack>
-                <Typography variant="body2" color="text.secondary">
-                  {r.fileName} • {r.size}
+                {r.type === "Link" ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Link Resource
+                  </Typography>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    {r.fileName} • {r.size}
+                  </Typography>
+                )}
+                <Typography variant="caption" color="text.secondary">
+                  Uploaded at: {r.uploadedAt}
                 </Typography>
                 <Stack direction="row" spacing={1} mt={1}>
-
-
                   {r.pricing === "PAID" && (
                     <Box mt={1}>
                       <Typography
@@ -497,26 +578,45 @@ export default function ExpertResources() {
                   )}
 
                 </Stack>
-                <Stack direction="row" spacing={1} mt={2}>
-                  <Chip
-                    label="View"
-                    color="primary"
-                    onClick={() => window.open(r.fileURL, "_blank")}
-                  />
-                  <Chip
-                    label="Delete"
-                    color="error"
-                    onClick={() =>
-                      setUploadedResources((prev) =>
-                        prev.filter((item) => item.id !== r.id)
-                      )
-                    }
-                  />
-                </Stack>
+                <Stack direction="row" spacing={0.2} mt={2} justifyContent="flex-end">
 
-                <Typography variant="caption" color="text.secondary">
-                  Uploaded at: {r.uploadedAt}
-                </Typography>
+                  {/* View */}
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      if (r.pricing === "PAID") {
+                        alert("This is a paid resource. Please purchase to view.");
+                        return;
+                      }
+                      if (r.type === "Link") {
+                        window.open(r.link, "_blank");
+                      } else {
+                        window.open(r.fileURL, "_blank");
+                      }
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+
+                  {/* Download (only for file types) */}
+                  {r.type !== "Link" && (
+                    <IconButton
+                      color="success"
+                      onClick={() => handleDownload(r)}
+                    >
+                      <DownloadIcon />
+                    </IconButton>
+                  )}
+
+                  {/* Delete */}
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDelete(r.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
@@ -538,17 +638,19 @@ export default function ExpertResources() {
             <TableRow>
               <TableCell>Resource</TableCell>
               <TableCell>Type</TableCell>
-              <TableCell>Shared With</TableCell>
-              <TableCell>Downloads</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Description</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {resources.map((r, i) => (
+            {uploadedResources.map((r, i) => (
               <TableRow key={i}>
                 <TableCell>{r.title}</TableCell>
                 <TableCell>{r.type}</TableCell>
-                <TableCell>{r.sharedWith}</TableCell>
-                <TableCell>{r.downloads}</TableCell>
+                <TableCell>
+                  {r.pricing === "PAID" ? `₹${r.finalPrice}` : "Free"}
+                </TableCell>
+                <TableCell>{r.description}</TableCell>
               </TableRow>
             ))}
           </TableBody>

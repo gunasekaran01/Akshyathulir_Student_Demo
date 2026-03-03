@@ -11,6 +11,7 @@ dashboard_collection = db["dashboard_data"]
 mentees_collection = db["mentees_data"]
 revenue_collection = db["revenue_data"]
 availability_dashboard = db["availability_dashboard"]
+resource_collection = db["resources_data"]
 print("Connected to MongoDB")
 # ---------------- FOLDERS ----------------
 PROFILE_DIR = "uploads/profiles"
