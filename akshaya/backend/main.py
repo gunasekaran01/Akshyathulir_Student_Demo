@@ -7,6 +7,8 @@ from routes.mentees_routes import router as mentees_router
 from routes.revenue_routes import router as revenue_router
 from routes.availability_routes import router as availability_router
 from routes.resource_routes import router as resource_router
+from routes.rating_routes import router as rating_router
+from routes.ads_routes import router as ads_router
 app = FastAPI()
 # ---------------- CORS ----------------
 app.add_middleware(
@@ -24,6 +26,8 @@ app.include_router(mentees_router)
 app.include_router(availability_router)
 app.include_router(resource_router)
 app.include_router(revenue_router)
+app.include_router(rating_router)
+app.include_router(ads_router)
 # ---------------- TEST ----------------
 @app.get("/")
 def root():

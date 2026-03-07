@@ -5,7 +5,8 @@ from controllers.expert_controller import (
     create_expert_controller,
     update_expert_controller,
     delete_expert_controller,
-    get_expert_by_email_controller
+    get_expert_by_email_controller,
+    get_all_experts_controller
 )
 
 router = APIRouter( tags=["Expert profile"] )
@@ -33,3 +34,6 @@ def get_expert_by_email(email: str):
 @router.delete("/expert/by-email/{email}")
 def delete_expert_by_email(email: str):
     return delete_expert_controller(email) 
+@router.get("/experts")
+def get_all_experts():
+    return get_all_experts_controller()

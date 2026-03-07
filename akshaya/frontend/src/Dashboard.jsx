@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import axios from "axios";
 /* ===== MUI IMPORTS ===== */
 import {
     Box,
@@ -13,27 +13,23 @@ import {
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-
 /* ===== MUI ICONS (REPLACED) ===== */
 import LaptopMacIcon from "@mui/icons-material/LaptopMac";
 import TuneIcon from "@mui/icons-material/Tune";
-
+import Rating from "@mui/material/Rating";
 /* ================= STAT CARD ================= */
 const StatCard = ({ title, value }) => (
     <Paper sx={{ p: 2, px: 8, textAlign: "center", borderRadius: 2, background: "#eeeeee78" }}>
-        <Typography variant="h6 ">{value}</Typography>
+        <Typography variant="h6">{value}</Typography>
         <Typography color="text.secondary">{title}</Typography>
     </Paper>
 );
-
 function Test() {
     const [selectedExpert, setSelectedExpert] = useState(null);
+    const [ratings, setRatings] = useState({});
+    const [experts, setExperts] = useState([]);
+    const [sponsoredAds, setSponsoredAds] = useState([]);
     const [view, setView] = useState("LIST");
-    const getRatingValue = (rating) => {
-        const match = rating.match(/(\d+(\.\d+)?)/);
-        return match ? parseFloat(match[1]) : 0;
-    };
-
     const [filters, setFilters] = useState({
         domain: [],
         subdomain: [],
@@ -41,158 +37,115 @@ function Test() {
         language: [],
     });
 
-    /* ================= OPTIONS ================= */
+    useEffect(() => {
+        const fetchExperts = async () => {
+            try {
+
+                const res = await axios.get("http://localhost:8000/experts");
+                const formatted = res.data.map((e) => ({
+                    ...e,
+                    name: `${e.firstName} ${e.lastName}`,
+                    skill: e.domain,
+                    img: `http://localhost:8000/${e.profileImage}`,
+                }));
+                setExperts(formatted);
+                fetchRatings(res.data);
+
+            } catch (err) {
+                console.error("Experts load error", err);
+            }
+        };
+
+        const fetchRatings = async (expertList) => {
+
+            let ratingMap = {};
+
+            for (const expert of expertList) {
+
+                const res = await axios.get(
+                    `http://localhost:8000/rating/${expert.expertId}`
+                );
+
+                const data = res.data;
+
+                if (data.length === 0) {
+                    ratingMap[expert.expertId] = 0;
+                    continue;
+                }
+
+                const avg =
+                    data.reduce((sum, r) => sum + r.rating, 0) / data.length;
+
+                ratingMap[expert.expertId] = avg.toFixed(1);
+            }
+
+            setRatings(ratingMap);
+        };
+
+        fetchExperts();
+
+    }, []);
+    useEffect(() => {
+
+        const fetchAds = async () => {
+
+            try {
+
+                const res = await axios.get("http://localhost:8000/ads");
+
+                const formattedAds = res.data.map((ad) => ({
+                    img: `http://localhost:8000/${ad.image}`,
+                    title: ad.title,
+                    desc: ad.description,
+                    cta: ad.cta,
+                    link: ad.link
+                }));
+
+                setSponsoredAds(formattedAds);
+
+            } catch (err) {
+                console.error("Ads load error", err);
+            }
+
+        };
+
+        fetchAds();
+
+    }, []);
+    /* ================= Filter DATA ================= */
+
     const domains = [
-        { label: "Artificial Intelligence", value: "ai" },
-        { label: "Data Science & Analytics", value: "data" },
-        { label: "Web Development", value: "web" },
-        { label: "Cloud Computing", value: "cloud" },
-        { label: "Cyber Security", value: "cyber" },
-        { label: "UI / UX Design", value: "uiux" },
-        { label: "Digital Marketing", value: "marketing" }
-    ];
+        ...new Set(experts.map((e) => e.domain).filter(Boolean))
+    ].map((d) => ({
+        label: d,
+        value: d.toLowerCase()
+    }));
 
     const subdomains = [
-        { label: "Machine Learning", value: "ml" },
-        { label: "Deep Learning", value: "dl" },
-        { label: "Full Stack", value: "fullstack" },
-        { label: "DevOps", value: "devops" },
-        { label: "AWS", value: "aws" },
-        { label: "SEO", value: "seo" },
-        { label: "UI Design", value: "ui" }
-    ];
+        ...new Set(
+            experts.flatMap((e) => e.subDomain || []).filter(Boolean)
+        )
+    ].map((s) => ({
+        label: s,
+        value: s.toLowerCase()
+    }));
 
     const languages = [
-        { label: "English", value: "english" },
-        { label: "Hindi", value: "hindi" },
-        { label: "Tamil", value: "tamil" },
-        { label: "Malayalam", value: "malayalam" }
-    ];
+        ...new Set(
+            experts.flatMap((e) => e.languages || []).filter(Boolean)
+        )
+    ].map((l) => ({
+        label: l,
+        value: l.toLowerCase()
+    }));
 
     const modes = [
-        { label: "Online", value: "online" },
-        { label: "Offline", value: "offline" }
-    ];
-
+        ...new Set(experts.map((e) => e.mode).filter(Boolean))
+    ].map((m) => ({
+        label: m,
+        value: m.toLowerCase()
+    }));
     /* ================= EXPERT DATA ================= */
-    const experts = [
-        {
-            name: "Samaa Vaishnavi",
-            skill: "AI & Machine Learning",
-            img: "https://randomuser.me/api/portraits/women/68.jpg",
-            rating: "★★★★★ 4.6",
-            classes: "ai ml online english",
-            featured: true
-        },
-        {
-            name: "Rahul Verma",
-            skill: "Machine Learning Engineer",
-            img: "https://randomuser.me/api/portraits/men/34.jpg",
-            rating: "★★★★★ 4.6",
-            classes: "ai ml online hindi english",
-            featured: false
-        },
-        {
-            name: "Sneha Iyer",
-            skill: "UI / UX Designer",
-            img: "https://randomuser.me/api/portraits/women/39.jpg",
-            rating: "★★★★☆ 4.5",
-            classes: "uiux ui online english tamil",
-            featured: false
-        },
-        {
-            name: "Mohammed Faisal",
-            skill: "AWS Cloud Architect",
-            img: "https://randomuser.me/api/portraits/men/58.jpg",
-            rating: "★★★★★ 4.8",
-            classes: "cloud aws online english",
-            featured: true
-        },
-        {
-            name: "Karthik Subramanian",
-            skill: "DevOps Engineer",
-            img: "https://randomuser.me/api/portraits/men/22.jpg",
-            rating: "★★★★★ 4.7",
-            classes: "cloud devops online tamil english",
-            featured: false
-        },
-        {
-            name: "Pooja Malhotra",
-            skill: "SEO & Digital Marketing Strategist",
-            img: "https://randomuser.me/api/portraits/women/61.jpg",
-            rating: "★★★★☆ 4.6",
-            classes: "marketing seo online english hindi",
-            featured: false
-        },
-        {
-            name: "Joseph Antony",
-            skill: "Cyber Security Analyst",
-            img: "https://randomuser.me/api/portraits/men/77.jpg",
-            rating: "★★★★★ 4.8",
-            classes: "cyber online english malayalam",
-            featured: true
-        },
-        {
-            name: "Ajay Kumar",
-            skill: "Full Stack Web Development",
-            img: "https://randomuser.me/api/portraits/men/71.jpg",
-            rating: "★★★★★ 4.8",
-            classes: "web fullstack offline hindi",
-            featured: true
-        },
-        {
-            name: "Ananya Sharma",
-            skill: "Data Science & Analytics",
-            img: "https://randomuser.me/api/portraits/women/44.jpg",
-            rating: "★★★★☆ 4.5",
-            classes: "data dl online english",
-            featured: false
-        },
-        {
-            name: "Arjun Mehta",
-            skill: "Cloud & DevOps Engineer",
-            img: "https://randomuser.me/api/portraits/men/65.jpg",
-            rating: "★★★★★ 4.9",
-            classes: "cloud aws devops online english",
-            featured: true
-        },
-        {
-            name: "Priya Nair",
-            skill: "Cyber Security Specialist",
-            img: "https://randomuser.me/api/portraits/women/52.jpg",
-            rating: "★★★★★ 4.7",
-            classes: "cyber offline malayalam",
-            featured: true
-        },
-        {
-            name: "Neha Verma",
-            skill: "Digital Marketing Expert",
-            img: "https://randomuser.me/api/portraits/women/21.jpg",
-            rating: "★★★★☆ 4.4",
-            classes: "marketing seo online english",
-            featured: false
-        }
-    ];
-    const sponsoredAds = [
-        {
-            img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80",
-            title: "AI & Data Science",
-            desc: "Learn from industry experts.",
-            cta: "Explore",
-        },
-        {
-            img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80",
-            title: "Tech Jobs",
-            desc: "Hiring for Web, AI & Cloud roles.",
-            cta: "Apply",
-        },
-        {
-            img: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
-            title: "AWS Cloud Training",
-            desc: "Hands-on labs & certification prep.",
-            cta: "Start Now",
-        },
-    ];
 
     const [adIndex, setAdIndex] = useState(0);
 
@@ -206,22 +159,28 @@ function Test() {
 
 
     const highRatedExperts = experts.filter(
-        (e) => getRatingValue(e.rating) >= 4.5
+        (e) => (ratings[e.expertId] || 0) >= 4.5
     );
     const verticalCarouselData = [...highRatedExperts, ...highRatedExperts];
 
     /* ================= FILTER LOGIC ================= */
     const filteredExperts = experts.filter((e) => {
-        const cls = e.classes.split(" ");
         return (
             (filters.domain.length === 0 ||
-                filters.domain.some((d) => cls.includes(d))) &&
+                filters.domain.includes(e.domain?.toLowerCase())) &&
+
             (filters.subdomain.length === 0 ||
-                filters.subdomain.some((s) => cls.includes(s))) &&
+                (e.subDomain || []).some((s) =>
+                    filters.subdomain.includes(s.toLowerCase())
+                )) &&
+
             (filters.mode.length === 0 ||
-                filters.mode.some((m) => cls.includes(m))) &&
+                filters.mode.includes(e.mode?.toLowerCase())) &&
+
             (filters.language.length === 0 ||
-                filters.language.some((l) => cls.includes(l)))
+                (e.languages || []).some((l) =>
+                    filters.language.includes(l.toLowerCase())
+                ))
         );
     });
 
@@ -232,7 +191,6 @@ function Test() {
         return (
             <Box sx={{ p: 4, bgcolor: "#f4fbf3", minHeight: "100vh" }}>
                 <Grid container spacing={3}>
-
                     {/* ================= LEFT : EXPERT DETAILS ================= */}
                     <Grid item xs={12} md={6}>
                         <Paper sx={{ p: 4, height: "100%" }}>
@@ -270,6 +228,12 @@ function Test() {
                                     <Typography mt={1}>
                                         <b>Mode:</b> {selectedExpert.mode}
                                     </Typography>
+                                     <Rating
+                                    value={ratings[selectedExpert.expertId] || 4.5}
+                                    precision={0.1}
+                                    size="small"
+                                    readOnly
+                                />
                                 </Box>
                             </Stack>
 
@@ -277,13 +241,13 @@ function Test() {
 
                             <Grid container spacing={4}>
                                 <Grid item xs={12} sm={4}>
-                                    <StatCard title="Experience" value="5+ Years" />
+                                    <StatCard title="Experience" value={`${selectedExpert.experience}+ Years`} />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
-                                    <StatCard title="Sessions" value="300+" />
+                                    <StatCard title="Sessions" value={`${selectedExpert.session}+`} />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
-                                    <StatCard title="Rate" value="₹1500/hr" />
+                                    <StatCard title="Rate" value={`₹${selectedExpert.rate}/hr`} />
                                 </Grid>
                             </Grid>
 
@@ -293,9 +257,7 @@ function Test() {
                                 About Expert
                             </Typography>
                             <Typography color="text.secondary" mt={1}>
-                                This expert brings extensive hands-on experience and delivers
-                                practical, real-world mentoring tailored for both beginners and
-                                advanced learners.
+                                {selectedExpert.about}
                             </Typography>
 
                             <Divider sx={{ my: 2 }} />
@@ -401,6 +363,10 @@ function Test() {
                                                     </Typography>
                                                     <Button
                                                         size="small"
+                                                        component="a"
+                                                        href={ad.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         sx={{
                                                             mt: 0.4,
                                                             bgcolor: "#2e7d32",
@@ -439,7 +405,7 @@ function Test() {
                                 {/* ===== VERTICAL CAROUSEL WRAPPER ===== */}
                                 <Box
                                     sx={{
-                                        height: 380,                 // visible area
+                                        height: 380,                 
                                         overflow: "hidden",
                                         position: "relative",
 
@@ -478,7 +444,7 @@ function Test() {
                                                         ...e,
                                                         image: e.img,
                                                         expertise: e.skill,
-                                                        mode: e.classes.includes("online") ? "Online" : "Offline",
+                                                        mode: e.mode
                                                     });
                                                 }}
                                             >
@@ -490,9 +456,12 @@ function Test() {
                                                     <Typography fontSize={12} color="text.secondary">
                                                         {e.skill}
                                                     </Typography>
-                                                    <Typography fontSize={12} color="#ff9800">
-                                                        {e.rating}
-                                                    </Typography>
+                                                    <Rating
+                                                        value={ratings[e.expertId] || 4.5}
+                                                        precision={0.1}
+                                                        size="small"
+                                                        readOnly
+                                                    />
                                                 </Box>
                                             </Stack>
                                         ))}
@@ -723,6 +692,10 @@ function Test() {
                                             </Typography>
                                             <Button
                                                 size="small"
+                                                component="a"
+                                                href={ad.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 sx={{
                                                     mt: 0.4,
                                                     bgcolor: "#2e7d32",
@@ -819,9 +792,12 @@ function Test() {
                                 <Typography fontSize={14} color="#666">
                                     {e.skill}
                                 </Typography>
-                                <Typography color="#ff9800" mt={1}>
-                                    {e.rating}
-                                </Typography>
+                                <Rating
+                                    value={ratings[e.expertId] || 4.5}
+                                    precision={0.1}
+                                    size="small"
+                                    readOnly
+                                />
 
                                 <Stack direction="row" spacing={1} mt={2}>
                                     <Button sx={{ flex: 1, bgcolor: "#32bb5b", color: "#fff" }}>
@@ -834,9 +810,7 @@ function Test() {
                                                 ...e,
                                                 image: e.img,
                                                 expertise: e.skill,
-                                                mode: e.classes.includes("online")
-                                                    ? "Online"
-                                                    : "Offline",
+                                                mode: e.mode
                                             });
                                             setView("DASHBOARD");
                                         }}
@@ -849,7 +823,6 @@ function Test() {
                     </Box>
                 </Box>
             </Box>
-
         </Box>
     );
 }

@@ -174,3 +174,12 @@ def delete_expert_controller(email: str):
         "status": "deleted",
         "message": "Expert deleted successfully"
     }
+    # ======================== GET ALL ==========================
+def get_all_experts_controller():
+    expert_list = []
+
+    for expert in experts.find():
+        expert["_id"] = str(expert["_id"])
+        expert_list.append(expert)
+
+    return expert_list
