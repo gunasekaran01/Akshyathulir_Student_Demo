@@ -20,7 +20,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
 } from "@mui/material";
 import axios from "axios";
 
@@ -29,7 +29,6 @@ import {
   AccessTime,
   LaptopMac,
   CheckCircle,
-
 } from "@mui/icons-material";
 import {
   BarChart,
@@ -213,7 +212,7 @@ export default function ExpertAvailability() {
           }
         }
       );
-
+      alert(`Are you sure the date ${date} is deleted`);
       setSessionDates(prev => prev.filter(d => d !== date));
       setBlockedDates(prev => prev.filter(d => d !== date));
 
@@ -425,36 +424,36 @@ export default function ExpertAvailability() {
                     No upcoming sessions
                   </Typography>
                 ) : (
-                <Stack spacing={1}>
-                  {filteredSessionDates.map((date, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        bgcolor: COLORS.light,
-                        borderLeft: `4px solid ${COLORS.main}`,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center"
-                      }}
-                    >
-                      <Typography fontWeight="bold">
-                        {dayjs(date).format("DD MMM YYYY")}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Mentoring Session
-                      </Typography>
-                      <Button
-                        size="small"
-                        color="error"
-                        onClick={() => deleteDate(date)}
+                  <Stack spacing={1}>
+                    {filteredSessionDates.map((date, i) => (
+                      <Box
+                        key={i}
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 2,
+                          bgcolor: COLORS.light,
+                          borderLeft: `4px solid ${COLORS.main}`,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center"
+                        }}
                       >
-                        Delete
-                      </Button>
-                    </Box>
-                  ))}
-                </Stack>
+                        <Typography fontWeight="bold">
+                          {dayjs(date).format("DD MMM YYYY")}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Mentoring Session
+                        </Typography>
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => deleteDate(date)}
+                        >
+                          Delete
+                        </Button>
+                      </Box>
+                    ))}
+                  </Stack>
                 )}
               </CardContent>
             </Card>
@@ -645,8 +644,8 @@ export default function ExpertAvailability() {
             }}
           >
             <TableRow>
-              <TableCell>Startup</TableCell>
-              <TableCell>Founder</TableCell>
+              <TableCell>Client Name</TableCell>
+              <TableCell>Topic</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Time</TableCell>
               <TableCell>Mode</TableCell>
@@ -658,8 +657,8 @@ export default function ExpertAvailability() {
           <TableBody>
             {sessionsCompleted.map((s, i) => (
               <TableRow key={i}>
-                <TableCell>{s.startup}</TableCell>
-                <TableCell>{s.founder}</TableCell>
+                <TableCell>{s.clientName}</TableCell>
+                <TableCell>{s.topic}</TableCell>
                 <TableCell>{s.date}</TableCell>
                 <TableCell>{s.time}</TableCell>
                 <TableCell>{s.mode}</TableCell>
@@ -673,7 +672,7 @@ export default function ExpertAvailability() {
         </Table>
       </TableContainer>
       {/* 📋 UPCOMING SLOTS */}
-      <Typography variant="h6" fontWeight="bold" mb={2}>
+      <Typography variant="h6" fontWeight="bold" my={2}>
         Upcoming Available Slots
       </Typography>
       <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
@@ -741,8 +740,26 @@ export default function ExpertAvailability() {
             Block Time
           </Button>
         </Stack>
-        <Dialog open={openAvailability} onClose={() => setOpenAvailability(false)}>
-          <DialogTitle>Add Availability</DialogTitle>
+        <Dialog open={openAvailability} onClose={() => setOpenAvailability(false)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              backgroundImage: "linear-gradient(135deg, #f5f7fa 0%, #c3e7cb 100%)",
+            }
+          }}>
+          <DialogTitle
+            sx={{
+              bgcolor: "#2e7d32",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            Add Availability
+          </DialogTitle>
 
           <DialogContent>
 
@@ -784,8 +801,24 @@ export default function ExpertAvailability() {
 
           </DialogActions>
         </Dialog>
-        <Dialog open={openBlock} onClose={() => setOpenBlock(false)}>
-          <DialogTitle>Block Date</DialogTitle>
+        <Dialog open={openBlock} onClose={() => setOpenBlock(false)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              backgroundImage: "linear-gradient(135deg, #f5f7fa 0%, #c3e7cb 100%)",
+            }
+          }}>
+          <DialogTitle
+            sx={{
+              bgcolor: "#2e7d32",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >Block Date</DialogTitle>
 
           <DialogContent>
 

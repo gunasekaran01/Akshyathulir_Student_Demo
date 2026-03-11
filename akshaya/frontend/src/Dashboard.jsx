@@ -6,6 +6,7 @@ import {
     Button,
     Paper,
     Typography,
+    Link,
     Divider,
     Grid,
     Avatar,
@@ -17,6 +18,8 @@ import TextField from "@mui/material/TextField";
 import LaptopMacIcon from "@mui/icons-material/LaptopMac";
 import TuneIcon from "@mui/icons-material/Tune";
 import Rating from "@mui/material/Rating";
+import Ads from "./ads";
+import BookingModal from "./BookingModal";
 /* ================= STAT CARD ================= */
 const StatCard = ({ title, value }) => (
     <Paper sx={{ p: 2, px: 8, textAlign: "center", borderRadius: 2, background: "#eeeeee78" }}>
@@ -28,7 +31,6 @@ function Test() {
     const [selectedExpert, setSelectedExpert] = useState(null);
     const [ratings, setRatings] = useState({});
     const [experts, setExperts] = useState([]);
-    const [sponsoredAds, setSponsoredAds] = useState([]);
     const [view, setView] = useState("LIST");
     const [filters, setFilters] = useState({
         domain: [],
@@ -36,7 +38,8 @@ function Test() {
         mode: [],
         language: [],
     });
-
+    const [bookingModalOpen, setBookingModalOpen] = useState(false);
+    const [selectedForBooking, setSelectedForBooking] = useState(null);
     useEffect(() => {
         const fetchExperts = async () => {
             try {
@@ -85,33 +88,7 @@ function Test() {
         fetchExperts();
 
     }, []);
-    useEffect(() => {
 
-        const fetchAds = async () => {
-
-            try {
-
-                const res = await axios.get("http://localhost:8000/ads");
-
-                const formattedAds = res.data.map((ad) => ({
-                    img: `http://localhost:8000/${ad.image}`,
-                    title: ad.title,
-                    desc: ad.description,
-                    cta: ad.cta,
-                    link: ad.link
-                }));
-
-                setSponsoredAds(formattedAds);
-
-            } catch (err) {
-                console.error("Ads load error", err);
-            }
-
-        };
-
-        fetchAds();
-
-    }, []);
     /* ================= Filter DATA ================= */
 
     const domains = [
@@ -146,18 +123,6 @@ function Test() {
         value: m.toLowerCase()
     }));
     /* ================= EXPERT DATA ================= */
-
-    const [adIndex, setAdIndex] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setAdIndex((prev) => (prev + 1) % sponsoredAds.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [sponsoredAds.length]);
-
-
     const highRatedExperts = experts.filter(
         (e) => (ratings[e.expertId] || 0) >= 4.5
     );
@@ -175,7 +140,9 @@ function Test() {
                 )) &&
 
             (filters.mode.length === 0 ||
-                filters.mode.includes(e.mode?.toLowerCase())) &&
+                filters.mode.some(mode =>
+                    e.mode?.toLowerCase().includes(mode)
+                )) &&
 
             (filters.language.length === 0 ||
                 (e.languages || []).some((l) =>
@@ -193,7 +160,7 @@ function Test() {
                 <Grid container spacing={3}>
                     {/* ================= LEFT : EXPERT DETAILS ================= */}
                     <Grid item xs={12} md={6}>
-                        <Paper sx={{ p: 4, height: "100%" }}>
+                        <Paper sx={{ p: 4, height: "100%", width: "1000px" }}>
                             <Button
                                 variant="contained"
                                 sx={{ mb: 2, bgcolor: "#2e7d32" }}
@@ -228,17 +195,15 @@ function Test() {
                                     <Typography mt={1}>
                                         <b>Mode:</b> {selectedExpert.mode}
                                     </Typography>
-                                     <Rating
-                                    value={ratings[selectedExpert.expertId] || 4.5}
-                                    precision={0.1}
-                                    size="small"
-                                    readOnly
-                                />
+                                    <Rating
+                                        value={ratings[selectedExpert.expertId] || 4.5}
+                                        precision={0.1}
+                                        size="small"
+                                        readOnly
+                                    />
                                 </Box>
                             </Stack>
-
                             <Divider sx={{ my: 2 }} />
-
                             <Grid container spacing={4}>
                                 <Grid item xs={12} sm={4}>
                                     <StatCard title="Experience" value={`${selectedExpert.experience}+ Years`} />
@@ -250,9 +215,7 @@ function Test() {
                                     <StatCard title="Rate" value={`₹${selectedExpert.rate}/hr`} />
                                 </Grid>
                             </Grid>
-
                             <Divider sx={{ my: 2 }} />
-
                             <Typography variant="h6" fontWeight="bold">
                                 About Expert
                             </Typography>
@@ -263,25 +226,75 @@ function Test() {
                             <Divider sx={{ my: 2 }} />
 
                             <Typography variant="h6" fontWeight="bold">
-                                What You Get
+                                Contact Details
                             </Typography>
-                            <Typography>✅ Personalized learning plan</Typography>
-                            <Typography>✅ Practical project-based training</Typography>
-                            <Typography>✅ Doubt clearing sessions</Typography>
-                            <Typography>✅ Resume & Interview guidance</Typography>
+                            <Typography>
+                                <strong> Email:</strong>{" "}
+                                <Link href={`mailto:${selectedExpert.email}`} underline="hover">
+                                    {selectedExpert.email}
+                                </Link>
+                            </Typography>
 
+                            <Typography>
+                                <strong>Phone:</strong>{" "}
+                                <Link href={`tel:${selectedExpert.phone}`} underline="hover">
+                                    {selectedExpert.phone}
+                                </Link>
+                            </Typography>
+
+                            <Typography>
+                                <strong>Website:</strong>{" "}
+                                <Link
+                                    href={selectedExpert.websiteUrl}
+                                    target="_blank"
+                                    rel="noopener"
+                                    underline="hover"
+                                >
+                                    {selectedExpert.websiteUrl}
+                                </Link>
+                            </Typography>
+
+                            <Typography>
+                                <strong>LinkedIn:</strong>{" "}
+                                <Link
+                                    href={selectedExpert.linkedinUrl}
+                                    target="_blank"
+                                    rel="noopener"
+                                    underline="hover"
+                                >
+                                    {selectedExpert.linkedinUrl}
+                                </Link>
+                            </Typography>
                             <Divider sx={{ my: 2 }} />
 
                             <Stack direction="row" spacing={2}>
-                                <Button variant="contained" sx={{ bgcolor: "#2e7d32" }}>
+                                <Button
+                                    variant="contained"
+                                    sx={{ bgcolor: "#2e7d32" }}
+                                    onClick={() => {
+                                        setSelectedForBooking(selectedExpert);
+                                        setBookingModalOpen(true);
+                                    }}
+                                >
                                     Book Session
                                 </Button>
                                 <Button
+                                    component="a"
+                                    href={`tel:${selectedExpert.phone}`}
+                                    variant="outlined"
+                                    sx={{ borderColor: "#2e7d32", color: "#2e7d32" }}
+                                >
+                                    Call Now
+                                </Button>
+                                <Button
+                                    component="a"
+                                    href={`mailto:${selectedExpert.email}`}
                                     variant="outlined"
                                     sx={{ borderColor: "#2e7d32", color: "#2e7d32" }}
                                 >
                                     Chat Now
                                 </Button>
+
                             </Stack>
                         </Paper>
                     </Grid>
@@ -291,105 +304,7 @@ function Test() {
                         <Stack spacing={3} sx={{ height: "100%" }}>
 
                             {/* Sponsored Ads */}
-                            <Paper
-                                sx={{
-                                    p: 1.5,
-                                    borderRadius: 3,
-                                    bgcolor: "#ffffff",
-                                    borderLeft: "4px solid #2e7d32",
-                                    overflow: "hidden",
-                                }}
-                            >
-                                <Typography fontWeight="bold" mb={1} fontSize={14}>
-                                    Sponsored
-                                </Typography>
-
-                                {/* ===== SLIDESHOW CONTAINER ===== */}
-                                <Box
-                                    sx={{
-                                        width: 260,
-                                        maxWidth: "100%",
-                                        height: 160,
-                                        overflow: "hidden",
-                                        position: "relative",
-                                        mx: "auto",
-                                        borderRadius: 4,
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            transform: `translateX(-${adIndex * 100}%)`,
-                                            transition: "transform 0.6s ease-in-out",
-                                        }}
-                                    >
-                                        {sponsoredAds.map((ad, i) => (
-                                            <Box
-                                                key={i}
-                                                sx={{
-                                                    minWidth: "100%",
-                                                    position: "relative",
-                                                    flexShrink: 0,
-                                                }}
-                                            >
-                                                <Box
-                                                    component="img"
-                                                    src={ad.img}
-                                                    alt={ad.title}
-                                                    sx={{
-                                                        width: "100%",
-                                                        height: 160,
-                                                        objectFit: "cover",
-
-                                                    }}
-                                                />
-
-                                                <Box
-                                                    sx={{
-                                                        position: "absolute",
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        p: 1,
-                                                        bgcolor: "rgba(0,0,0,0.55)",
-                                                        color: "#fff",
-                                                    }}
-                                                >
-                                                    <Typography fontSize={13} fontWeight={600} noWrap>
-                                                        {ad.title}
-                                                    </Typography>
-                                                    <Typography fontSize={11} sx={{ opacity: 0.9 }}>
-                                                        {ad.desc}
-                                                    </Typography>
-                                                    <Button
-                                                        size="small"
-                                                        component="a"
-                                                        href={ad.link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        sx={{
-                                                            mt: 0.4,
-                                                            bgcolor: "#2e7d32",
-                                                            color: "#fff",
-                                                            fontSize: "11px",
-                                                            px: 1,
-                                                            py: 0.2,
-                                                            textTransform: "none",
-                                                        }}
-                                                    >
-                                                        {ad.cta}
-                                                    </Button>
-                                                </Box>
-                                            </Box>
-                                        ))}
-                                    </Box>
-                                </Box>
-
-
-                                <Typography fontSize={9} color="text.disabled" mt={0.5}>
-                                    Ads by partner platforms
-                                </Typography>
-                            </Paper>
+                            <Ads />
                             {/* Top Rated Experts */}
                             <Paper
                                 sx={{
@@ -405,7 +320,7 @@ function Test() {
                                 {/* ===== VERTICAL CAROUSEL WRAPPER ===== */}
                                 <Box
                                     sx={{
-                                        height: 380,                 
+                                        height: 380,
                                         overflow: "hidden",
                                         position: "relative",
 
@@ -471,6 +386,12 @@ function Test() {
                         </Stack>
                     </Grid>
                 </Grid>
+                {/* Booking Modal */}
+                <BookingModal
+                    open={bookingModalOpen}
+                    onClose={() => setBookingModalOpen(false)}
+                    expert={selectedForBooking}
+                />
             </Box>
         );
     }
@@ -563,8 +484,6 @@ function Test() {
                 </Box>
             </Box>
 
-
-
             {/* ===== MAIN CONTENT ===== */}
             <Box
                 sx={{
@@ -606,6 +525,9 @@ function Test() {
                                 key={key}
                                 multiple
                                 options={options}
+                                value={options.filter((opt) =>
+                                    filters[key].includes(opt.value)
+                                )}
                                 getOptionLabel={(o) => o.label}
                                 onChange={(e, v) =>
                                     setFilters((p) => ({
@@ -619,106 +541,7 @@ function Test() {
                             />
                         ))}
                     </Paper>
-                    <Paper
-                        sx={{
-                            mt: 5,
-                            p: 1.5,
-                            borderRadius: 3,
-                            bgcolor: "#ffffff",
-                            borderLeft: "4px solid #2e7d32",
-                            overflow: "hidden",
-                        }}
-                    >
-                        <Typography fontWeight="bold" mb={1} fontSize={14}>
-                            Sponsored
-                        </Typography>
-
-                        {/* ===== SLIDESHOW CONTAINER ===== */}
-                        <Box
-                            sx={{
-                                width: 260,
-                                maxWidth: "100%",
-                                height: 140,
-                                overflow: "hidden",
-                                position: "relative",
-                                mx: "auto",
-                                borderRadius: 4,
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    transform: `translateX(-${adIndex * 100}%)`,
-                                    transition: "transform 0.6s ease-in-out",
-                                }}
-                            >
-                                {sponsoredAds.map((ad, i) => (
-                                    <Box
-                                        key={i}
-                                        sx={{
-                                            minWidth: "100%",
-                                            position: "relative",
-                                            flexShrink: 0,
-                                        }}
-                                    >
-                                        <Box
-                                            component="img"
-                                            src={ad.img}
-                                            alt={ad.title}
-                                            sx={{
-                                                width: "100%",
-                                                height: 140,
-                                                objectFit: "cover",
-
-                                            }}
-                                        />
-
-                                        <Box
-                                            sx={{
-                                                position: "absolute",
-                                                bottom: 0,
-                                                left: 0,
-                                                right: 0,
-                                                p: 1,
-                                                bgcolor: "rgba(0,0,0,0.55)",
-                                                color: "#fff",
-                                            }}
-                                        >
-                                            <Typography fontSize={13} fontWeight={600} noWrap>
-                                                {ad.title}
-                                            </Typography>
-                                            <Typography fontSize={11} sx={{ opacity: 0.9 }}>
-                                                {ad.desc}
-                                            </Typography>
-                                            <Button
-                                                size="small"
-                                                component="a"
-                                                href={ad.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                sx={{
-                                                    mt: 0.4,
-                                                    bgcolor: "#2e7d32",
-                                                    color: "#fff",
-                                                    fontSize: "11px",
-                                                    px: 1,
-                                                    py: 0.2,
-                                                    textTransform: "none",
-                                                }}
-                                            >
-                                                {ad.cta}
-                                            </Button>
-                                        </Box>
-                                    </Box>
-                                ))}
-                            </Box>
-                        </Box>
-
-
-                        <Typography fontSize={9} color="text.disabled" mt={0.5}>
-                            Ads by partner platforms
-                        </Typography>
-                    </Paper>
+                    <Ads />
                 </Grid>
                 {/* ===== RIGHT : BACK BUTTON + PROFILES ===== */}
                 <Box
@@ -760,69 +583,103 @@ function Test() {
                     )}
 
                     {/* ---- Profiles Grid (ALWAYS rendered) ---- */}
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: selectedExpert
-                                ? "repeat(auto-fill, minmax(260px, 260px))"
-                                : "repeat(auto-fill, minmax(260px, 1fr))",
-                            gap: "22px",
-                        }}
-                    >
-                        {expertsToShow.map((e, i) => (
-                            <Paper
-                                key={i}
-                                sx={{
-                                    p: "20px",
-                                    borderRadius: "16px",
-                                    textAlign: "center",
-                                    boxShadow: "0 10px 25px rgba(0,0,0,.08)",
-                                    transition: ".3s",
-                                    "&:hover": {
-                                        transform: "translateY(-6px)",
-                                        boxShadow: "0 16px 35px rgba(0,0,0,.15)",
-                                    },
-                                }}
-                            >
-                                <Avatar
-                                    src={e.img}
-                                    sx={{ width: 90, height: 90, mx: "auto", mb: 1 }}
-                                />
-                                <Typography fontWeight={600}>{e.name}</Typography>
-                                <Typography fontSize={14} color="#666">
-                                    {e.skill}
-                                </Typography>
-                                <Rating
-                                    value={ratings[e.expertId] || 4.5}
-                                    precision={0.1}
-                                    size="small"
-                                    readOnly
-                                />
+                    {expertsToShow.length === 0 ? (
+                        <Box
+                            sx={{
+                                gridColumn: "1 / -1",
+                                textAlign: "center",
+                                py: 6,
+                            }}
+                        >
+                            <Typography variant="h5" color="text.secondary" fontWeight={600}>
+                                No Experts Found
+                            </Typography>
+                            <Typography color="text.secondary" mt={1}>
+                                Try changing your filters to see available experts.
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: selectedExpert
+                                    ? "repeat(auto-fill, minmax(260px, 260px))"
+                                    : "repeat(auto-fill, minmax(260px, 1fr))",
+                                gap: "22px",
+                            }}
+                        >
+                            {expertsToShow.map((e, i) => (
+                                <Paper
+                                    key={i}
+                                    sx={{
+                                        p: "20px",
+                                        borderRadius: "16px",
+                                        textAlign: "center",
+                                        boxShadow: "0 10px 25px rgba(0,0,0,.08)",
+                                        transition: ".3s",
+                                        "&:hover": {
+                                            transform: "translateY(-6px)",
+                                            boxShadow: "0 16px 35px rgba(0,0,0,.15)",
+                                        },
+                                    }}
+                                >
+                                    <Avatar
+                                        src={e.img}
+                                        sx={{ width: 90, height: 90, mx: "auto", mb: 1 }}
+                                    />
+                                    <Typography fontWeight={600}>{e.name}</Typography>
+                                    <Typography fontSize={14} color="#666">
+                                        {e.skill}
+                                    </Typography>
+                                    <Rating
+                                        value={ratings[e.expertId] || 4.5}
+                                        precision={0.1}
+                                        size="small"
+                                        readOnly
+                                    />
 
-                                <Stack direction="row" spacing={1} mt={2}>
-                                    <Button sx={{ flex: 1, bgcolor: "#32bb5b", color: "#fff" }}>
-                                        Book
-                                    </Button>
-                                    <Button
-                                        sx={{ flex: 1, bgcolor: "#2e7d32", color: "#fff" }}
-                                        onClick={() => {
-                                            setSelectedExpert({
-                                                ...e,
-                                                image: e.img,
-                                                expertise: e.skill,
-                                                mode: e.mode
-                                            });
-                                            setView("DASHBOARD");
-                                        }}
-                                    >
-                                        Details
-                                    </Button>
-                                </Stack>
-                            </Paper>
-                        ))}
-                    </Box>
+                                    <Stack direction="row" spacing={1} mt={2}>
+                                        <Button
+                                            sx={{ flex: 1, bgcolor: "#32bb5b", color: "#fff" }}
+                                            onClick={() => {
+                                                setSelectedForBooking({
+                                                    ...e,
+                                                    image: e.img,
+                                                    expertise: e.skill,
+                                                    mode: e.mode
+                                                });
+                                                setBookingModalOpen(true);
+                                            }}
+                                        >
+                                            Book
+                                        </Button>
+                                        <Button
+                                            sx={{ flex: 1, bgcolor: "#2e7d32", color: "#fff" }}
+                                            onClick={() => {
+                                                setSelectedExpert({
+                                                    ...e,
+                                                    image: e.img,
+                                                    expertise: e.skill,
+                                                    mode: e.mode
+                                                });
+                                                setView("DASHBOARD");
+                                            }}
+                                        >
+                                            Details
+                                        </Button>
+                                    </Stack>
+                                </Paper>
+                            ))}
+                        </Box>
+                    )}
                 </Box>
             </Box>
+            {/* Booking Modal */}
+            <BookingModal
+                open={bookingModalOpen}
+                onClose={() => setBookingModalOpen(false)}
+                expert={selectedForBooking}
+            />
         </Box>
     );
 }

@@ -4,6 +4,7 @@ import Drawx from "./Drawx";
 import ExpertForm from "./Expert Form"
 import Expertprofile from "./ExpertDashboard"
 import Test from "./Dashboard";
+import Ads from "./ads";
 
 import Dashboard from "./pages/dashboard";
 import Mentees from "./pages/mentees";
@@ -16,11 +17,12 @@ import Revenue from "./pages/revenue";
 function App() {
   return (
     <>
-    <Routes>
+    <Routes>    
     <Route path="expertform" element={<ExpertForm />} />
     <Route path="expertprofile" element={<Expertprofile />} />
     <Route path="dashboard" element={ <Test/>}/>
-    
+    <Route path="ads" element={ <Ads/>}/>
+
       <Route path="/" element={<Drawx />}>
         <Route index element={<Dashboard />} />
         <Route path="mentees" element={<Mentees />} />

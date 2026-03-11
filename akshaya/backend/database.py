@@ -14,6 +14,8 @@ availability_dashboard = db["availability_dashboard"]
 resource_collection = db["resources_data"]
 expert_ratings = db["expert_ratings"]
 ads_collection = db["sponsored_ads"]
+ads_controller_collection=db["ads_controller"]
+bookings_collection = db["bookings"]
 print("Connected to MongoDB")
 # ---------------- FOLDERS ----------------
 PROFILE_DIR = "uploads/profiles"

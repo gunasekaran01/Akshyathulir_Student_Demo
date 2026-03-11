@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from controllers.ads_controller import (
     get_ads_controller,
     create_ad_controller,
-    delete_ad_controller
+    delete_ad_controller,
+    toggle_ads_controller
 )
 
 router = APIRouter(tags=["Sponsored Ads"])
@@ -24,3 +25,9 @@ def create_ad(data: dict):
 @router.delete("/ads/{ad_id}")
 def delete_ad(ad_id: str):
     return delete_ad_controller(ad_id)
+
+
+# TURN ADS ON/OFF
+@router.put("/ads-controller/{status}")
+def toggle_ads(status: str):
+    return toggle_ads_controller(status)

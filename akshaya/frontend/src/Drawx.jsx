@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { styled} from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Box, Drawer, List, Typography, Divider, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Avatar, Tooltip } from '@mui/material';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
-
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -21,7 +21,7 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-  backgroundColor: '#1f4d3a', 
+  backgroundColor: '#1f4d3a',
   color: '#fff',
 });
 
@@ -65,28 +65,43 @@ export default function Drawx() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [user, setUser] = useState(null);
   const handleMouseEnter = () => setOpen(true);
   const handleMouseLeave = () => setOpen(false);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const email = localStorage.getItem("expertEmail");
+
+      try {
+        const res = await axios.get(`http://localhost:8000/expert/by-email/${email}`);
+
+        setUser(res.data); // store the expert object
+      } catch (error) {
+        console.error("Error fetching user", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <Box sx={{ display: 'flex', bgcolor: '#E8F5E9', minHeight: '100vh' }}>
-      <StyledDrawer 
-        variant="permanent" 
-        open={open} 
-        onMouseEnter={handleMouseEnter} 
+      <StyledDrawer
+        variant="permanent"
+        open={open}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <Box sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar sx={{ bgcolor: '#fff', color: '#1a3e36' }}>🎓</Avatar>
           {open && <Typography variant="h6" fontWeight="bold">Industry Expert</Typography>}
         </Box>
-        
+
         <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.96)' }} />
-        
+
         <List sx={{ mt: 1 }}>
           {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding sx={{ display: 'block'}}>
+            <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 onClick={() => navigate(item.path)}
                 sx={{
@@ -128,14 +143,19 @@ export default function Drawx() {
           <Typography variant="h5" fontWeight="bold" color="#fff"> Expert Dashboard</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Tooltip title="Account settings">
-              <IconButton size="small">
-                <Avatar sx={{ width: 32, height: 32 }} />
+              <IconButton size="small"onClick={() => navigate("/profile")}>
+                <Avatar
+                  src={user?.profileImage ? `http://localhost:8000/${user.profileImage}` : ""}
+                  sx={{ width: 32, height: 32 }}
+                >
+                  {user?.firstname?.charAt(0)}
+                </Avatar>
               </IconButton>
             </Tooltip>
             <IconButton sx={{ color: '#fff', '&:hover': { color: '#ff6b6b' }, '&:active': { color: '#ff6b6b' } }}><LogoutIcon /></IconButton>
           </Box>
         </Box>
-        <Outlet /> 
+        <Outlet />
       </Box>
     </Box>
   );

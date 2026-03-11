@@ -55,3 +55,23 @@ class Expert(BaseModel):
     certifications: List[Certification] = Field(default_factory=list)
     class Config:
         from_attributes = True
+
+
+# ===================== BOOKING MODEL =====================
+class Booking(BaseModel):
+    menteeEmail: str
+    menteename: str
+    menteephone: str    
+    expertId: str
+    expertEmail: EmailStr
+    expertName: str
+    date: str  # YYYY-MM-DD
+    time: str  # HH:MM
+    topic: str
+    description: str
+    duration: str  # in minutes (30, 60, 90, 120)
+    status: str = "pending"  # pending, confirmed, completed, cancelled
+    createdAt: str
+    
+    class Config:
+        from_attributes = True

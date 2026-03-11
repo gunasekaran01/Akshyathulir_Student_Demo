@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import BookingsNotifications from "../BookingsNotifications";
 
 import {
   LineChart,
@@ -137,8 +138,11 @@ export default function Dashboard() {
           </Grid>
         ))}
       </Grid>
+
+      {/* BOOKING NOTIFICATIONS SECTION */}
+      <BookingsNotifications expertEmail={email} />
       {/* TABLE SECTION */}
-      <Typography variant="h6" fontWeight="bold" mb={2}>
+      <Typography variant="h6" fontWeight="bold" my={2}>
         Performance Summary
       </Typography>
 
