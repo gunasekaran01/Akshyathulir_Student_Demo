@@ -7,37 +7,70 @@ from datetime import datetime
 # ===================== CREATE BOOKING =====================
 def create_booking_controller(booking_data: dict):
     try:
-        # Create booking object
+        required_keys = ["expertId", "expertEmail", "expertName", "menteeName", "menteeEmail", "date", "time", "duration", "sessionType", "topic"]
+        for key in required_keys:
+            if not booking_data.get(key):
+                return {"success": False, "message": f"{key} is required"}
+
+        expert_id = booking_data.get("expertId")
+        date = booking_data.get("date")
+        time = booking_data.get("time")
+        session_type = booking_data.get("sessionType", "individual").lower()
+
+        if session_type not in ["individual", "group"]:
+            return {"success": False, "message": "Invalid sessionType. Use individual or group."}
+
+        existing = list(bookings_collection.find({
+            "expertId": expert_id,
+            "date": date,
+            "time": time
+        }))
+
+        # reject if any existing individual booking
+        for b in existing:
+            if b.get("sessionType") == "individual":
+                return {"success": False, "message": "Slot already booked for individual session"}
+
+        # if new booking is individual and any booking exists at same slot
+        if session_type == "individual" and existing:
+            return {"success": False, "message": "Slot already booked for individual session"}
+
         booking = {
+            "expertId": expert_id,
+            "expertEmail": booking_data.get("expertEmail"),
+            "expertName": booking_data.get("expertName"),
             "menteeName": booking_data.get("menteeName"),
             "menteeEmail": booking_data.get("menteeEmail"),
             "menteephone": booking_data.get("menteephone"),
-            "expertId": booking_data.get("expertId"),
-            "expertEmail": booking_data.get("expertEmail"),
-            "expertName": booking_data.get("expertName"),
-            "date": booking_data.get("date"),
-            "time": booking_data.get("time"),
-            "topic": booking_data.get("topic"),
-            "description": booking_data.get("description"),
+            "date": date,
+            "time": time,
             "duration": booking_data.get("duration"),
+            "sessionType": session_type,
+            "topic": booking_data.get("topic"),
+            "description": booking_data.get("description", ""),
             "status": "pending",
             "createdAt": datetime.now().isoformat(),
-            "updatedAt": datetime.now().isoformat()
+            "updatedAt": datetime.now().isoformat(),
         }
-        
-        # Insert booking into database
+
         result = bookings_collection.insert_one(booking)
         booking["_id"] = str(result.inserted_id)
-        
-        print(f"Booking created for expert: {booking_data.get('expertEmail')}")
-        
+
+        if session_type == "group" and existing:
+            return {
+                "success": True,
+                "message": "Joined existing group session",
+                "booking_id": str(result.inserted_id),
+                "data": booking
+            }
+
         return {
             "success": True,
-            "message": "Booking request created successfully!",
+            "message": "Booking created successfully",
             "booking_id": str(result.inserted_id),
             "data": booking
         }
-        
+
     except Exception as e:
         print(f"Error creating booking: {str(e)}")
         return {

@@ -75,3 +75,14 @@ class Booking(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+# ===================== USER MODEL =====================
+class User(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    # additional profile fields can be added here
+
+    class Config:
+        from_attributes = True

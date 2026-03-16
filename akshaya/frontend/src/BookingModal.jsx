@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
     Dialog,
@@ -24,15 +24,24 @@ const BookingModal = ({ open, onClose, expert }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    const [formData, setFormData] = useState({
-        menteeEmail: "",
-        menteeName: "",
-        menteephone: "",
-        date: "",
-        time: "",
-        topic: "",
-        description: "",
-        duration: "30",
+    const [userData, setUserData] = useState(null);
+
+    const [formData, setFormData] = useState(() => {
+        // load stored mentee data (fallback in case fetch fails)
+        const email = localStorage.getItem("menteeEmail") || "";
+        const name = localStorage.getItem("menteeName") || "";
+        const phone = localStorage.getItem("menteephone") || localStorage.getItem("menteePhone") || "";
+        return {
+            menteeEmail: email,
+            menteeName: name,
+            menteephone: phone,
+            date: "",
+            time: "",
+            topic: "",
+            description: "",
+            duration: "30",
+            sessionType: "individual",
+        };
     });
 
     const handleInputChange = (e) => {
@@ -44,15 +53,25 @@ const BookingModal = ({ open, onClose, expert }) => {
     };
 
     const validateForm = () => {
-        if (!formData.menteeEmail || !formData.date || !formData.time || !formData.topic || !formData.menteephone || !formData.menteeName) {
+        // ensure stored mentee data exists
+        if (!formData.menteeEmail || !formData.menteeName || !formData.menteephone) {
+            setError("User information missing. Please login or update your profile.");
+            return false;
+        }
+        if (!formData.date || !formData.time || !formData.topic) {
             setError("Please fill all required fields");
             return false;
         }
 
-        // Validate email format
+        if (!formData.sessionType || !["individual", "group"].includes(formData.sessionType)) {
+            setError("Please select a valid session type");
+            return false;
+        }
+
+        // Validate email format even if loaded from storage
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.menteeEmail)) {
-            setError("Please enter a valid email address");
+            setError("Stored email address is not valid");
             return false;
         }
 
@@ -69,6 +88,7 @@ const BookingModal = ({ open, onClose, expert }) => {
 
     const handleSubmit = async () => {
         setError(null);
+        setSuccess(false);
 
         // Validate form
         if (!validateForm()) {
@@ -82,7 +102,7 @@ const BookingModal = ({ open, onClose, expert }) => {
                 menteeEmail: formData.menteeEmail,
                 menteeName: formData.menteeName,
                 menteephone: formData.menteephone,
-                expertId: expert.expertId,
+                expertId: expert.expertId || expert._id || "",
                 expertEmail: expert.email,
                 expertName: expert.name,
                 date: formData.date,
@@ -90,38 +110,33 @@ const BookingModal = ({ open, onClose, expert }) => {
                 topic: formData.topic,
                 description: formData.description,
                 duration: formData.duration,
+                sessionType: formData.sessionType || "individual",
                 status: "pending",
                 createdAt: new Date().toISOString(),
             };
 
-            // Send booking request to backend
-            const response = await axios.post(
-                "http://localhost:8000/bookings/create",
-                menteeData
-            );
+            const response = await axios.post("http://localhost:8000/bookings/create", menteeData);
 
-            if (response.status === 200 || response.status === 201) {
+            if (response.data?.success) {
                 setSuccess(true);
-                setFormData({
-                    menteeEmail: "",
-                    menteeName: "",
-                    menteephone: "",
+                setFormData((prev) => ({
+                    ...prev,
                     date: "",
                     time: "",
                     topic: "",
                     description: "",
                     duration: "30",
-                });
-
-                // Auto close modal after 2 seconds
+                }));
                 setTimeout(() => {
                     onClose();
                     setSuccess(false);
                 }, 1000);
+            } else {
+                setError(response.data?.message || "Failed to create booking. Please try again.");
             }
         } catch (err) {
-            console.error("Booking error:", err);
-            setError(err.response?.data?.message || "Failed to create booking. Please try again.");
+            console.error("Booking create error:", err);
+            setError("Unable to create booking. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -129,6 +144,44 @@ const BookingModal = ({ open, onClose, expert }) => {
 
     // Get minumum date (today)
     const today = new Date().toISOString().split("T")[0];
+
+    // when modal opens, fetch user info from backend if email exists in localStorage
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const email = localStorage.getItem("userEmail");
+                if (!email) {
+                    setError("User not logged in, please login to book.");
+                    return;
+                }
+
+                const res = await axios.get(
+                    `http://localhost:8000/users/getByEmail/${email}`
+                );
+
+                const user = res.data.data || res.data;
+                if (user) {
+                    setUserData(user);
+                    setFormData((prev) => ({
+                        ...prev,
+                        menteeEmail: user.email || email,
+                        menteeName: user.name || user.fullName || "",
+                        menteephone: user.phone || user.mobile || "",
+                    }));
+                    localStorage.setItem("menteeEmail", user.email || email);
+                    localStorage.setItem("menteeName", user.name || user.fullName || "");
+                    localStorage.setItem("menteephone", user.phone || user.mobile || "");
+                }
+            } catch (err) {
+                console.error("User fetch error:", err);
+                setError("Unable to fetch mentee profile. Please try again.");
+            }
+        };
+
+        if (open) {
+            fetchUser();
+        }
+    }, [open]);
 
     return (
         <Dialog
@@ -194,69 +247,10 @@ const BookingModal = ({ open, onClose, expert }) => {
 
                 {/* Booking Form */}
                 <Stack spacing={2}>
-                    {/* Email Field */}
-                    <TextField
-                        label="Your Email"
-                        name="menteeEmail"
-                        type="email"
-                        value={formData.menteeEmail}
-                        onChange={handleInputChange}
-                        placeholder="your.email@example.com"
-                        fullWidth
-                        required
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                "&:hover fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                                "&.Mui-focused fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                            },
-                        }}
-                    />
-                    {/* Name Field */}
-                    <TextField
-                        label="Your Name"
-                        name="menteeName"
-                        type="name"
-                        value={formData.menteeName}
-                        onChange={handleInputChange}
-                        placeholder="Your Full Name"
-                        fullWidth
-                        required
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                "&:hover fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                                "&.Mui-focused fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                            },
-                        }}
-                    />
-                    {/* Phone Field */}
-                    <TextField
-                        label="Your Phone Number"
-                        name="menteephone"
-                        type="tel"
-                        value={formData.menteephone}
-                        onChange={handleInputChange}
-                        placeholder="10-digit phone number"
-                        fullWidth
-                        required
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                "&:hover fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                                "&.Mui-focused fieldset": {
-                                    borderColor: "#2e7d32",
-                                },
-                            },
-                        }}
-                    />
+                    {/* user info is auto-filled, no input fields shown */}
+                    <Typography variant="body2" color="text.secondary">
+                        Booking as {formData.menteeName} ({formData.menteeEmail})
+                    </Typography>
 
                     {/* Date Field */}
                     <TextField
@@ -302,6 +296,20 @@ const BookingModal = ({ open, onClose, expert }) => {
                             },
                         }}
                     />
+
+                    {/* Session Type */}
+                    <FormControl fullWidth>
+                        <InputLabel>Session Type</InputLabel>
+                        <Select
+                            name="sessionType"
+                            value={formData.sessionType}
+                            label="Session Type"
+                            onChange={handleInputChange}
+                        >
+                            <MenuItem value="individual">Individual</MenuItem>
+                            <MenuItem value="group">Group</MenuItem>
+                        </Select>
+                    </FormControl>
 
                     {/* Duration */}
                     <FormControl fullWidth>

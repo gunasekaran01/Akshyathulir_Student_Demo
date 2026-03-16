@@ -16,6 +16,7 @@ expert_ratings = db["expert_ratings"]
 ads_collection = db["sponsored_ads"]
 ads_controller_collection=db["ads_controller"]
 bookings_collection = db["bookings"]
+users_collection = db["users"]
 print("Connected to MongoDB")
 # ---------------- FOLDERS ----------------
 PROFILE_DIR = "uploads/profiles"

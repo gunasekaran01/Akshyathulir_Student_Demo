@@ -10,6 +10,7 @@ from routes.resource_routes import router as resource_router
 from routes.rating_routes import router as rating_router
 from routes.ads_routes import router as ads_router
 from routes.booking_routes import router as booking_router
+from routes.user_routes import router as user_router
 app = FastAPI()
 # ---------------- CORS ----------------
 app.add_middleware(
@@ -30,6 +31,7 @@ app.include_router(revenue_router)
 app.include_router(rating_router)
 app.include_router(ads_router)
 app.include_router(booking_router)
+app.include_router(user_router)
 # ---------------- TEST ----------------
 @app.get("/")
 def root():
