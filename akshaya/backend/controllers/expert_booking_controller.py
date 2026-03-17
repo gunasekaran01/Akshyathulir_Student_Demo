@@ -44,28 +44,28 @@ def create_booking_controller(booking_data: dict):
 
             overlap = is_time_overlap(new_time, new_duration, existing_time, existing_duration)
 
-        if overlap:
+            if overlap:
 
             # calculate start and end time of existing session
-            start_time = datetime.strptime(existing_time, "%H:%M")
-            end_time = start_time + timedelta(minutes=existing_duration)
+                start_time = datetime.strptime(existing_time, "%H:%M")
+                end_time = start_time + timedelta(minutes=existing_duration)
 
-            start_str = start_time.strftime("%H:%M")
-            end_str = end_time.strftime("%H:%M")
+                start_str = start_time.strftime("%H:%M")
+                end_str = end_time.strftime("%H:%M")
 
-            # If any individual session exists → block
-            if existing_session_type == "individual":
-                return {
-                    "success": False,
-                    "message": f"The session is already booked for an individual session from {start_str} to {end_str}. Please book after that."
-                }
+                # If any individual session exists → block
+                if existing_session_type == "individual":
+                    return {
+                        "success": False,
+                        "message": f"The session is already booked for an individual session from {start_str} to {end_str}. Please book after that."
+                    }
 
-             # If new booking is individual → block
-            if session_type == "individual":
-                return {
-                    "success": False,
-                    "message": f"This time overlaps with another session from {start_str} to {end_str}. Please choose a time after {end_str}."
-                }   
+                # If new booking is individual → block
+                if session_type == "individual":
+                    return {
+                        "success": False,
+                        "message": f"This time overlaps with another session from {start_str} to {end_str}. Please choose a time after {end_str}."
+                    }   
 
         booking = {
             "expertId": expert_id,
